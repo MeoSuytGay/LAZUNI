@@ -1,8 +1,8 @@
 import { AiOutlinePicture } from "react-icons/ai";
 import { useState } from "react";
-import { InputField } from "./Authenfication/InputField";
+import { InputField } from "../Authenfication/InputField";
 import axios from "axios";
-import { UploadProductServices } from "../services/UploadProductServices";
+import { UploadProductServices } from "../../services/UploadProductServices";
 
 export const UploadProduct = () => {
     const [quantity, setQuantity] = useState(1);
@@ -68,7 +68,7 @@ export const UploadProduct = () => {
 
     return (
         <>
-            <div className="mx-auto flex p-4 container">
+            <div className="mx-auto flex p-4  ">
                 <div className="mr-16 w-2/5">
                     <label className="block text-sm font-medium text-gray-700">
                         Picture of product

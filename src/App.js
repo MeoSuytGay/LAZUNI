@@ -14,9 +14,10 @@ import { ProductDetail } from './pages/ProductDetail';
 import { ShopVendors } from './components/ShopVendors';
 import { Products } from './pages/Products';
 import { LayoutDefault } from './components/layouts/LayoutDefault';
-import { UploadProduct } from './components/UploadProduct';
+import { UploadProduct } from './components/ManagementProduct/UploadProduct';
 import { ManageProducts } from './pages/ManageProducts';
 import { AdminPage } from './pages/AdminPage';
+import { EditProduct } from './components/ManagementProduct/EditProduct';
 
 function App() {
   return (
@@ -39,9 +40,11 @@ function App() {
         </Route>
         <Route path="login" element={<Login />} />
         <Route path="signUp" element={<Signup />} />
+        <Route path="enterOtp" element={<EnterOtp />} />
         <Route path="forgetPassword" element={<ForgetPassword />} />
         <Route path="manageproducts" element={<ManageProducts />} />
         <Route path="UploadProduct" element={<UploadProduct/>} />
+        <Route path="editproduct" element={<EditProduct/>} />
         <Route path="adminpage" element={<AdminPage/>} />
       </Routes>
     </BrowserRouter>

@@ -1,4 +1,4 @@
-import { Catagories } from "../components/Catagories";
+import { Catagories } from "../components/Catagories/Catagories";
 
 import { Carousel } from "../components/Other/HomeBanner";
 
