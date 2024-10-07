@@ -37,12 +37,13 @@ function App() {
             <Route index element={<HomePage />} />
             <Route path=":userId" element={<ShopVendors />} />
           </Route>
+          <Route path="manageproducts" element={<ManageProducts />} />
         </Route>
         <Route path="login" element={<Login />} />
         <Route path="signUp" element={<Signup />} />
         <Route path="enterOtp" element={<EnterOtp />} />
         <Route path="forgetPassword" element={<ForgetPassword />} />
-        <Route path="manageproducts" element={<ManageProducts />} />
+       
         <Route path="UploadProduct" element={<UploadProduct/>} />
         <Route path="editproduct" element={<EditProduct/>} />
         <Route path="adminpage" element={<AdminPage/>} />

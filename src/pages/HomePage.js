@@ -1,5 +1,6 @@
-import { Catagories } from "../components/Catagories/Catagories";
 
+
+import { Categories } from "../components/Catagories/Categories";
 import { Carousel } from "../components/Other/HomeBanner";
 
 import { SuggestProduct } from "../components/SuggestProduct";
@@ -21,7 +22,7 @@ export const HomePage = () => {
          <Carousel  slides={slides} />
    
         
-            <Catagories/>
+            <Categories />
       
           <SuggestProduct/>
       </div>
