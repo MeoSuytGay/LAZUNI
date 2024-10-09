@@ -4,8 +4,8 @@ export const ProductDetailServices = async (productId) => {
     try {
        
         // Fetch product data using a GET request
-        const response = await axios.get(`https://dummyjson.com/products/${productId}`); // Use backticks here
-        console.log(response);
+        const response = await axios.get(`http://localhost:8080/products/${productId}`); // Use backticks here
+        console.log(response.data)
         if (response.data) {
             return response.data;
         } else {

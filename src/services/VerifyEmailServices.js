@@ -25,7 +25,7 @@ export const VerifyEmailServices = async (otpUser) => {
       if (storedData) {
         // If OTP doesn't match but we have storedData, make the POST request
         try {
-            const response = await axios.post('http://localhost:8080/client/verified', storedData);
+            const response = await axios.post('http://localhost:8080/client/verify', storedData);
             sessionStorage.removeItem('Data'); // Remove OTP after posting
             return response.data;  // Return the response from the POST request
         } catch (error) {

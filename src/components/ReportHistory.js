@@ -1,19 +1,36 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { HistoryReportProduct } from '../services/ReportProductServices';
 
 export const ReportHistory = () => {
-  const [reports] = useState([
-    { title: 'Report 1', description: 'Issue with product delivery', productName: 'Laptop', state: 'Đã giải quyết', result: 'Refunded' },
-    { title: 'Report 2', description: 'Wrong item received', productName: 'Smartphone', state: 'Chờ giải quyết', result: 'Pending' },
-    { title: 'Report 3', description: 'Damaged item', productName: 'Headphones', state: 'Đã giải quyết', result: 'Replaced' },
-    { title: 'Report 4', description: 'Late delivery', productName: 'Book', state: 'Chờ giải quyết', result: 'Pending' },
-  ]);
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const user = JSON.parse(localStorage.getItem('user'));
+   
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        const data = await HistoryReportProduct(user.userId);
+        setReports(data);
+        setLoading(false);
+      } catch (error) {
+        setError('Failed to fetch reports');
+        setLoading(false);
+      }
+    };
+
+    fetchReports();
+  }, []);
 
   const getStateColor = (state) => {
     return state === 'Đã giải quyết' ? 'bg-green-200 text-green-800' : 'bg-yellow-200 text-yellow-800';
   };
 
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
+
   return (
-    <div className=" mx-auto ml-[50px]">
+    <div className="mx-auto ml-[50px]">
       <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
           <thead className="text-[13px] uppercase text-primary">
@@ -38,10 +55,10 @@ export const ReportHistory = () => {
                   {report.productName}
                 </td>
                 <td className={`px-6 py-4 ${getStateColor(report.state)}`}>
-                  {report.state}
+                  {report.type}
                 </td>
                 <td className="px-6 py-4">
-                  {report.result}
+                  {report.response_message}
                 </td>
               </tr>
             ))}

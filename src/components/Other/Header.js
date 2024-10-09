@@ -10,13 +10,18 @@ import { FaSearch } from "react-icons/fa";
 import { CiMenuBurger, CiWallet } from "react-icons/ci";
 import { Link, useNavigate } from 'react-router-dom';
 import LogoutModal from '../Popup/LogoutModal';
+import DepositMoney from '../Popup/DespositeMoney';
 
 export const Header = () => {
     const [keyWord, setKeyWord] = useState('');
     const [user, setUser] = useState(null);
     const [showDropdown, setShowDropdown] = useState(false);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
+    const [showDepositModal, setShowDepositModal] = useState(false); // Add state for deposit modal
 
+    const handleDepositClick = () => {
+        setShowDepositModal(true); // Show the deposit modal
+    };
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -52,7 +57,6 @@ export const Header = () => {
         setShowDropdown(false); // Close dropdown after selecting
         navigate(`/profile?section=${section}`);
     };
-
     return (
         <>
             <header className="pb-6 bg-white lg:pb-0 ">
@@ -99,10 +103,10 @@ export const Header = () => {
                     <div className='ml-[15px]'>
                         {user ? (
                             <div className="relative flex">
-                                <Link to="#" className="flex items-center space-x-2 mr-6 border rounded-lg p-2">
-                                    <a className="text-base font-medium">+ {user.balance}</a>
+                                <div className="flex items-center space-x-2 mr-6 border rounded-lg p-2">
+                                    <a className="text-base font-medium" onClick={handleDepositClick}>+ {user.balance}</a>
                                     <CiWallet size={24} className="hover:text-stone-600" />
-                                </Link>
+                                </div>
                                 <div className="flex items-center space-x-2 cursor-pointer" onClick={() => setShowDropdown(!showDropdown)}>
                                     <img
                                         className="w-8 h-8 rounded-full object-cover"
@@ -183,7 +187,6 @@ export const Header = () => {
                                         </div>
                                     </div>
                                 )}
-
                             </div>
                         ) : (
                             <a
@@ -201,6 +204,10 @@ export const Header = () => {
                 isOpen={showLogoutModal}
                 onClose={cancelLogout}
                 onConfirm={confirmLogout}
+            />
+            <DepositMoney
+                isOpen={showDepositModal}
+                onClose={() => setShowDepositModal(false)} // Close the deposit modal
             />
         </>
     );

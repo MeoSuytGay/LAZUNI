@@ -1,33 +1,33 @@
-// import axios from 'axios';
+import axios from 'axios';
 
-// export const UploadProductServices = async (formData) => {
-//     try {
-//         // Create a new FormData object to handle image uploads
-//         const formData = new FormData();
+export const UploadProductServices = async (formData) => {
+    try {
+        // Retrieve userId from localStorage
+        const user = JSON.parse(localStorage.getItem('user')); // Assuming user is an object stored in localStorage
+        const userId = user?.userId;
 
-//         // Append each image file to the form data
-//         images.forEach((image, index) => {
-//             formData.append(`image_${index}`, image);
-//         });
+        if (!userId) {
+            throw new Error('User not logged in or userId not found');
+        }
 
-//         // Append other product data (excluding images)
-//         Object.keys(productData).forEach((key) => {
-//             formData.append(key, productData[key]);
-//         });
+        // Append userId to the formData
+        formData.append("userId", userId);
 
-//         // Send a POST request to your backend API
-//         const response = await axios.post('your-api-endpoint/products', formData, {
-//             headers: {
-//                 'Content-Type': 'multipart/form-data',
-//             },
-//         });
+        // Log the images in formData
 
-//         // Handle success response
-//         console.log('Product uploaded successfully:', response.data);
-//         return response.data;
-//     } catch (error) {
-//         // Handle error response
-//         console.error('Error uploading product:', error);
-//         throw error;
-//     }
-// };
+        // Send a POST request to your backend API
+        const response = await axios.post('http://localhost:8080/products', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+
+        // Handle success response
+        console.log('Product uploaded successfully:', response.data);
+        return response.data;
+    } catch (error) {
+        // Handle error response
+        console.error('Error uploading product:', error);
+        throw error;
+    }
+};

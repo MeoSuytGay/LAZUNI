@@ -15,7 +15,7 @@ export const Login = () => {
             const user = await LoginServices(email, password);
             localStorage.setItem('user', JSON.stringify(user));
             localStorage.setItem('email',user.email)
-          
+         
             if(user){
                 navigate('/')
             }

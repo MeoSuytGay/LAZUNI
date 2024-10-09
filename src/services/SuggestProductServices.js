@@ -4,7 +4,7 @@ import axios from 'axios';
 export const SuggestProductServices = async () => {
     try {
         // Destructure the data from the response
-        const { data } = await axios.get('https://dummyjson.com/products');
+        const { data } = await axios.get('http://localhost:8080/products');
         
         // Return the list of products from the data
         return data;

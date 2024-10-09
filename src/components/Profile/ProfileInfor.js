@@ -96,11 +96,13 @@ export const ProfileInfor = () => {
             formData.append('avatar', selectedFile);
             
         }
+       
         else{
             formData.append('avatar', AvatarImage);
         }
     
         try {
+            
             const response = await ChangeInformationService(formData);
             console.log('Profile updated successfully', response);
         } catch (error) {
@@ -133,6 +135,7 @@ export const ProfileInfor = () => {
                             type="file"
                             id="image-upload"
                             accept="image/*"
+                            
                             onChange={handleImageChange}
                             className="hidden"
                         />

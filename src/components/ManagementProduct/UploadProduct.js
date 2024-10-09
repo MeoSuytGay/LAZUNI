@@ -1,20 +1,35 @@
 import { AiOutlinePicture } from "react-icons/ai";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { InputField } from "../Authenfication/InputField";
-import axios from "axios";
 import { UploadProductServices } from "../../services/UploadProductServices";
+import { CategoriesServices } from "../../services/CategoriesServices"; // Import the Categories service
 
 export const UploadProduct = () => {
     const [quantity, setQuantity] = useState(1);
     const [productName, setProductName] = useState('');
     const [productPrice, setProductPrice] = useState('');
     const [description, setDescription] = useState('');
-    const [category, setCategory] = useState('fashion');
+    const [category, setCategory] = useState('');
+    const [categories, setCategories] = useState([]); // State for categories
     const [condition, setCondition] = useState('new');
-    const [transactionType, setTransactionType] = useState('sale'); 
+    const [transactionType, setTransactionType] = useState('sell');
     const [images, setImages] = useState([]);
     const [previewUrls, setPreviewUrls] = useState([]);
     const [error, setError] = useState('');
+
+    // Fetch categories when component mounts
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const response = await CategoriesServices();
+                setCategories(response); // Assuming response.data contains the list of categories
+            } catch (error) {
+                console.error("Error fetching categories:", error);
+            }
+        };
+
+        fetchCategories();
+    }, []);
 
     const increaseQuantity = () => {
         setQuantity((prevQuantity) => prevQuantity + 1);
@@ -47,16 +62,17 @@ export const UploadProduct = () => {
     const handleSubmit = async () => {
         const formData = new FormData();
         formData.append("productName", productName);
-        formData.append("productPrice", productPrice);
+        formData.append("price", productPrice);
         formData.append("description", description);
-        formData.append("category", category);
-        formData.append("condition", condition);
-        formData.append("transactionType", transactionType);
+        formData.append("categoryId", category);
+      
+        formData.append("state", condition);
+        formData.append("type", transactionType);
         formData.append("quantity", quantity);
 
-        for (let i = 0; i < images.length; i++) {
-            formData.append("images", images[i]);
-        }
+            for (let i = 0; i < images.length; i++) {
+                formData.append("images", images[i]);
+            }
 
         try {
             const response = await UploadProductServices(formData);
@@ -68,8 +84,9 @@ export const UploadProduct = () => {
 
     return (
         <>
-            <div className="mx-auto flex p-4  ">
+            <div className="mx-auto flex p-4">
                 <div className="mr-16 w-2/5">
+                    {/* Image Upload Section */}
                     <label className="block text-sm font-medium text-gray-700">
                         Picture of product
                     </label>
@@ -118,21 +135,27 @@ export const UploadProduct = () => {
                 </div>
 
                 <div className="flex flex-col w-3/5">
-                    <label className="block text-sm font-medium text-gray-700">
-                        Product Category
-                    </label>
+                    {/* Category Dropdown */}
                     <select
                         className="my-5 block w-full py-2 px-3 border border-primary bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 sm:text-sm"
                         value={category}
                         onChange={(e) => setCategory(e.target.value)}
                     >
-                        <option value="fashion">Fashion, Accessories - Clothes</option>
+                        <option value="">Select Category</option>
+                        {categories.length > 0 ? (
+                            categories.map((cat) => (
+                                <option key={cat.categoryId} value={cat.categoryId}>
+                                    {cat.title}
+                                </option>
+                            ))
+                        ) : (
+                            <option value="">No categories available</option>
+                        )}
                     </select>
 
-                    <div className="text-primary text-[32px] font-bold">Thông tin chi tiết</div>
-
+                    {/* Product Condition */}
                     <div className="my-5">
-                        <div className="text-[18px] mb-2 text-gray-700">Tình trạng </div>
+                        <div className="text-[18px] mb-2 text-gray-700">Condition</div>
                         <div className="flex items-center">
                             <label className="mr-[20px] text-[14px]">
                                 <input
@@ -157,6 +180,7 @@ export const UploadProduct = () => {
                         </div>
                     </div>
 
+                    {/* Transaction Type */}
                     <div className="my-5">
                         <div className="text-[18px] mb-2 text-gray-700">Transaction Type</div>
                         <div className="flex items-center">
@@ -166,7 +190,7 @@ export const UploadProduct = () => {
                                     name="transactionType"
                                     value="sale"
                                     checked={transactionType === 'sale'}
-                                    onChange={() => setTransactionType('sale')}
+                                    onChange={() => setTransactionType('sell')}
                                 />
                                 For Sale
                             </label>
@@ -193,8 +217,9 @@ export const UploadProduct = () => {
                         </div>
                     </div>
 
+                    {/* Quantity Section */}
                     <div className="flex mb-4">
-                        <div className="w-1/6 text-[#757575]">Số lượng</div>
+                        <div className="w-1/6 text-[#757575]">Quantity</div>
                         <div className="w-5/6 flex items-center ml-[10px]">
                             <button
                                 onClick={decreaseQuantity}
@@ -212,6 +237,7 @@ export const UploadProduct = () => {
                         </div>
                     </div>
 
+                    {/* Product Name and Price */}
                     <InputField
                         title="Product Name"
                         type="text"
@@ -230,6 +256,7 @@ export const UploadProduct = () => {
                         onChange={(e) => setProductPrice(e.target.value)}
                     />
 
+                    {/* Description Section */}
                     <div className="text-primary text-[32px] font-bold">Mô tả chi tiết</div>
 
                     <div className="my-5">
@@ -239,7 +266,7 @@ export const UploadProduct = () => {
                         <textarea
                             id="description"
                             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                            rows="5" // Specify the number of rows
+                            rows="5"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                         />
@@ -255,5 +282,4 @@ export const UploadProduct = () => {
             </div>
         </>
     );
-
 };

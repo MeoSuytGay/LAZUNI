@@ -18,6 +18,7 @@ import { UploadProduct } from './components/ManagementProduct/UploadProduct';
 import { ManageProducts } from './pages/ManageProducts';
 import { AdminPage } from './pages/AdminPage';
 import { EditProduct } from './components/ManagementProduct/EditProduct';
+import { DepositSuccessful } from './components/DepositeSuccessfull';
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
         <Route path="enterOtp" element={<EnterOtp />} />
         <Route path="forgetPassword" element={<ForgetPassword />} />
        
+        <Route path="despositesucess" element={<DepositSuccessful/>} />
         <Route path="UploadProduct" element={<UploadProduct/>} />
         <Route path="editproduct" element={<EditProduct/>} />
         <Route path="adminpage" element={<AdminPage/>} />

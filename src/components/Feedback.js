@@ -15,10 +15,10 @@ export const FeedBack = ({ reviews }) => {
       {reviews.map((review, index) => (
         <div key={index} className="review-item border-b pb-4 mb-4">
           <div className="flex justify-between items-center">
-            <span className="font-bold">{review.reviewerName}</span>
-            <span className="text-sm text-gray-500">{new Date(review.date).toLocaleDateString()}</span>
+            <span className="font-bold">{review.sender.userName}</span>
+            <span className="text-sm text-gray-500">{new Date(review.createdAt).toLocaleDateString()}</span>
           </div>
-          <p className="text-gray-700 mb-2">{review.comment}</p>
+          <p className="text-gray-700 mb-2">{review.description}</p>
           
           {/* Display the current rating for each review */}
           <StarRatings

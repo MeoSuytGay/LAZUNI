@@ -107,12 +107,43 @@ export const ProductDetail = () => {
     const handleBuyNow = () => {
         setConfirmPopupOpen(true);
     };
-    
+
     const confirmPurchase = () => {
         // Logic to handle the purchase can go here
         alert(`You have purchased ${productDetail.title} (Quantity: ${quantity})`);
         setConfirmPopupOpen(false);
     };
+    const handleAddToCart = () => {
+        const productToAdd = {
+            id: productDetail.productId,
+            title: productDetail.productName,
+            img: productDetail.images[0],
+            price: productDetail.price,
+            quantity: quantity,
+        };
+    
+        const user = JSON.parse(localStorage.getItem('user'));
+        const userId = user ? user.userId : 'guest'; // Use 'guest' if no user is logged in
+    
+        
+        const existingCart = JSON.parse(sessionStorage.getItem(`cart_${userId}`)) || [];
+    
+       
+        const productIndex = existingCart.findIndex(item => item.id === productDetail.id);
+    
+        if (productIndex !== -1) {
+            // If the product exists, update its quantity
+            existingCart[productIndex].quantity += quantity;
+        } else {
+            // If the product doesn't exist, add it to the cart
+            existingCart.push(productToAdd);
+        }
+    
+        // Save the updated cart to sessionStorage
+        sessionStorage.setItem(`cart_${userId}`, JSON.stringify(existingCart));
+    };
+    
+
 
     if (loading) {
         return <div>Loading...</div>;
@@ -122,6 +153,7 @@ export const ProductDetail = () => {
         return <div>{error}</div>;
     }
 
+
     return (
         <>
             {productDetail ? (
@@ -129,17 +161,17 @@ export const ProductDetail = () => {
                     <div className="border flex p-2  border-[5px]h-auto">
                         <div className="w-2/5 flex  justify-center">
                             <div className="h-[350px] text-center ">
-                                <img src={productDetail.images[0]} className="object-contain h-full max-w-full" alt={productDetail.title} />
+                                <img src={productDetail.images[0].path} className="object-contain h-full max-w-full" alt={productDetail.productName} />
                             </div>
                         </div>
                         <div className="w-3/5">
-                            <div className="font-semibold text-[24px] flex items-center justify-between">{productDetail.title} <div className="w-1/12 cursor-pointer mt-[4px]" onClick={(e) => {
+                            <div className="font-semibold text-[24px] flex items-center justify-between">{productDetail.productName} <div className="w-1/12 cursor-pointer mt-[4px]" onClick={(e) => {
                                 e.preventDefault(); // Prevent default action
                                 openReportPopup();
                             }}>
                                 <MdOutlineReport />
                             </div></div>
-                            <div className="flex items-center uppercase my-[8px]"><FaTags /> <div className="mx-4">{productDetail.category}</div></div>
+                            <div className="flex items-center uppercase my-[8px]"><FaTags /> <div className="mx-4">{productDetail.category.title}</div></div>
                             <div className="bg-[#FAFAFA]">
                                 <div className="p-4 text-red-500 ml-[25px] text-[25px] font-medium">đ {productDetail.price}</div>
                             </div>
@@ -157,19 +189,26 @@ export const ProductDetail = () => {
                                     <button onClick={decreaseQuantity} className="px-3 py-1 border hover:bg-gray-300 rounded-l">-</button>
                                     <div className="text-[#757575] mx-2">{quantity}</div>
                                     <button onClick={increaseQuantity} className="px-3 py-1 border hover:bg-gray-300 rounded-r">+</button>
-                                    <div className="text-[#757575] ml-2">{productDetail.minimumOrderQuantity} sản phẩm có sẵn</div>
+                                    <div className="text-[#757575] ml-2">{productDetail.quantity} sản phẩm có sẵn</div>
                                 </div>
                             </div>
                             <div className="flex items-center my-7">
-                            <button onClick={handleBuyNow} className="mr-10 border p-4 w-auto flex bg-primary text-white">
-                <FaHandHolding className="mr-4 text-[18px]" />Mua ngay
-            </button>
-            <ConfirmPurchasePopup 
-                isOpen={isConfirmPopupOpen} 
-                onClose={() => setConfirmPopupOpen(false)} 
-                onConfirm={confirmPurchase} 
-            />
-                                <button className="border p-4 w-auto flex items-center bg-primary text-white"><IoCartOutline className="mr-2 text-[18px]" />Thêm vào giỏ hàng</button>
+                                <button onClick={handleBuyNow} className="mr-10 border p-4 w-auto flex bg-primary text-white">
+                                    <FaHandHolding className="mr-4 text-[18px]" />Mua ngay
+                                </button>
+                                <ConfirmPurchasePopup
+                                    isOpen={isConfirmPopupOpen}
+                                    onClose={() => setConfirmPopupOpen(false)}
+                                    onConfirm={confirmPurchase}
+                                />
+                                <button
+                                    className="border p-4 w-auto flex items-center bg-primary text-white"
+                                    onClick={handleAddToCart} // Call the function when the button is clicked
+                                >
+                                    <IoCartOutline className="mr-2 text-[18px]" />
+                                    Thêm vào giỏ hàng
+                                </button>
+
                             </div>
                             <div className="my-7">
                                 <div className="my-3">OR</div>
@@ -208,7 +247,7 @@ export const ProductDetail = () => {
                         <div className="w-2/3">
                             <div className="text-[26px]  p-3 font-semibold bg-[#FAFAFA]">Đánh giá</div>
                             <div className="my-[25px]">
-                                <FeedBack reviews={productDetail.reviews} />
+                                <FeedBack reviews={productDetail.feedBacks} />
 
                             </div>
 
@@ -217,11 +256,11 @@ export const ProductDetail = () => {
                             <a href="#" title="User Profile" className="flex ml-[30px] mr-[50px] my-[20px] space-x-2 items-center ">
                                 <img
                                     className="w-[100px] h-[100px] rounded-full object-cover w-2/5"
-                                    src={AvatarImage}
+                                    src={productDetail.user.profilePicture}
                                     alt="Profile"
                                 />
                                 <div className="">
-                                    <strong className="text-base font-[700px] text-primary">{'Guest'}</strong>
+                                    <strong className="text-base font-[700px] text-primary">{productDetail.user.userName}</strong>
                                     <div className="flex mt-2">
                                         <button className="flex items-center border p-2 mr-2"><CiChat1 className="mr-1" /><div className="text-[12px]">Chat ngay</div></button>
                                         <button className="flex items-center border p-2"><CiShop className="mr-1" /><div className="text-[12px]">Xem shop</div></button>
@@ -235,7 +274,7 @@ export const ProductDetail = () => {
             ) : (
                 <div>Product not found</div>
             )}
-                <ReportPopup isOpen={isReportPopupOpen} onClose={closeReportPopup} /> 
+            <ReportPopup isOpen={isReportPopupOpen} onClose={closeReportPopup} />
         </>
     );
 };
