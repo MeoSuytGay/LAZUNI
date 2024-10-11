@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { HistoryReportProduct } from '../services/ReportProductServices';
+import { HistoryReportProduct } from '../../services/ReportProductServices';
 
 export const ReportHistory = () => {
   const [reports, setReports] = useState([]);
@@ -14,7 +14,7 @@ export const ReportHistory = () => {
         setReports(data);
         setLoading(false);
       } catch (error) {
-        setError('Failed to fetch reports');
+        setError('Not Found');
         setLoading(false);
       }
     };
@@ -55,7 +55,7 @@ export const ReportHistory = () => {
                   {report.productName}
                 </td>
                 <td className={`px-6 py-4 ${getStateColor(report.state)}`}>
-                  {report.type}
+                  {report.state}
                 </td>
                 <td className="px-6 py-4">
                   {report.response_message}

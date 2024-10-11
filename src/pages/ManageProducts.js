@@ -8,6 +8,7 @@ import { UploadProduct } from '../components/ManagementProduct/UploadProduct'; /
 export const ManageProducts = () => {
   const [selectedArea, setSelectedArea] = useState('published'); // Default to 'published'
   const [showModal, setShowModal] = useState(false); // State for controlling the modal
+  const user = JSON.parse(localStorage.getItem('user'));
 
   const handleAreaClick = (area) => {
     setSelectedArea(area);
@@ -67,25 +68,22 @@ export const ManageProducts = () => {
         </div>
 
         <div>
-          {selectedArea === 'published' && <PublicProduct />}
-          {selectedArea === 'stock' && <InventoryProduct />}
-          {selectedArea === 'underReview' && <PendingProduct />}
+          {selectedArea === 'published' && user?.userId && <PublicProduct userId={user.userId} status="public" />}
+          {selectedArea === 'stock' && user?.userId && <InventoryProduct userId={user.userId} status="hide" />}
+          {selectedArea === 'underReview' && user?.userId && <PendingProduct userId={user.userId} status="pending" />}
         </div>
       </div>
 
       {/* Modal for Creating Product */}
       {showModal && (
-  <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50">
-    <div className="bg-white p-6 rounded-md w-3/5 max-h-[95vh] mt-42mb-4 overflow-y-auto"> {/* Thêm max-h và overflow */}
-      <button onClick={closeModal} className="float-right text-red-500">✕</button>
-      <h2 className="text-lg font-bold mb-4">Tạo sản phẩm mới</h2>
-      <UploadProduct />
-    </div>
-  </div>
-)}
-
-
-
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-md w-3/5 max-h-[95vh] mt-[42px] mb-4 overflow-y-auto"> {/* Thêm max-h và overflow */}
+            <button onClick={closeModal} className="absolute top-4 right-4 text-red-500">✕</button>
+            <h2 className="text-lg font-bold mb-4">Tạo sản phẩm mới</h2>
+            <UploadProduct />
+          </div>
+        </div>
+      )}
     </>
   );
 };

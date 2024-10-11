@@ -15,20 +15,21 @@ export const ReportProductServices = async (reportData) => {
   }
 };
 
-export const HistoryReportProduct = async (data) => {
-  console.log(data);
+export const HistoryReportProduct = async (userId) => {
   try {
-    const response = await axios.get(`http://localhost:8080/reports/${data}`, {  // Use template literals to insert the data
+    // Fetch the report history using the userId
+    const response = await axios.get(`http://localhost:8080/reports/history?userId=${userId}`, {
       headers: {
         'Content-Type': 'application/json',
       },
     });
 
-    console.log(response.data);
+    // Log and return the response data
+    console.log("Report history data:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching report history:", error);
-    throw error;
+    throw error; // Re-throw the error after logging it
   }
 };
 

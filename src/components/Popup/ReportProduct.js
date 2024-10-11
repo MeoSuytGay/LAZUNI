@@ -22,7 +22,7 @@ const ReportPopup = ({ isOpen, onClose, productId }) => {
             userId: user.userId, // Corrected to userId
             productId,
             title,
-            type:"Chưa giải quyết",
+            state:"pending",
             description,
         
         };

@@ -1,80 +1,66 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaTimes, FaCheck } from 'react-icons/fa'; // Import the close and check icons
+import { fetchPendingProducts, updateProductStatus } from '../../services/SensorProductServices'; // Import services
+import ConfirmationModal from '../../components/Popup/ConfirmationModal'; // Import ConfirmationModal component
 
 export const SensorProduct = () => {
-    const [products, setProducts] = useState([
-        {
-            id: 1,
-            productName: 'Laptop',
-            category: 'Electronics',
-            price: 500,
-            description: 'High performance laptop.',
-            status: 'Pending',
-            images: [
-                'https://cdn.tgdd.vn/Products/Images/42/329143/s16/iphone-16-pro-tu-nhien-650x650.png',
-                'https://kenh14cdn.com/thumb_w/640/203336854389633024/2024/8/29/45731208022207560349249525728124825370502434n-1724909957122798918811.jpg'
-            ],
-        },
-        {
-            id: 2,
-            productName: 'Smartphone',
-            category: 'Electronics',
-            price: 300,
-            description: 'Latest model smartphone.',
-            status: 'Pending',
-            images: [
-                'https://cdn.tgdd.vn/Products/Images/42/329143/s16/iphone-16-pro-tu-nhien-650x650.png',
-                'https://kenh14cdn.com/thumb_w/640/203336854389633024/2024/8/29/45731208022207560349249525728124825370502434n-1724909957122798918818811.jpg'
-            ],
-        },
-        {
-            id: 3,
-            productName: 'Smartphone',
-            category: 'Electronics',
-            price: 300,
-            description: 'Latest model smartphone.',
-            status: 'Pending',
-            images: [
-                'https://cdn.tgdd.vn/Products/Images/42/329143/s16/iphone-16-pro-tu-nhien-650x650.png',
-                'https://kenh14cdn.com/thumb_w/640/203336854389633024/2024/8/29/45731208022207560349249525728124825370502434n-1724909957122798918818811.jpg'
-            ],
-        },
-        {
-            id: 4,
-            productName: 'Smartphone',
-            category: 'Electronics',
-            price: 300,
-            description: 'Latest model smartphone.',
-            status: 'Pending',
-            images: [
-                'https://cdn.tgdd.vn/Products/Images/42/329143/s16/iphone-16-pro-tu-nhien-650x650.png',
-                'https://kenh14cdn.com/thumb_w/640/203336854389633024/2024/8/29/45731208022207560349249525728124825370502434n-1724909957122798918818811.jpg'
-            ],
-        },
-    ]);
+    const [products, setProducts] = useState([]); // Store the fetched products
+    const [selectedImage, setSelectedImage] = useState(null); // Store the selected image for modal
+    const [isModalVisible, setIsModalVisible] = useState(false); // State to show/hide the modal
+    const [selectedProductId, setSelectedProductId] = useState(null); // To store the product ID for confirmation
+    const [action, setAction] = useState(""); // Store the action (accept/reject)
 
-    const [selectedImage, setSelectedImage] = useState(null);
+    // Fetch products from the backend using the service function
+    const getPendingProducts = async () => {
+        try {
+            const response = await fetchPendingProducts(); // Call service method
+            setProducts(Array.isArray(response) ? response : []); // Ensure products is always an array
+        } catch (error) {
+            console.error('Error fetching pending products:', error);
+            setProducts([]); // Set an empty array in case of an error
+        }
+    };
+
+    useEffect(() => {
+        getPendingProducts(); // Fetch products on component mount
+    }, []);
 
     const handleAccept = (id) => {
-        setProducts(prevProducts =>
-            prevProducts.map(product =>
-                product.id === id ? { ...product, status: 'Accepted' } : product
-            )
-        );
+        setSelectedProductId(id);
+        setAction('accept');
+        setIsModalVisible(true);
     };
 
     const handleReject = (id) => {
-        setProducts(prevProducts =>
-            prevProducts.map(product =>
-                product.id === id ? { ...product, status: 'Rejected' } : product
-            )
-        );
+        setSelectedProductId(id);
+        setAction('reject');
+        setIsModalVisible(true);
     };
 
+    const confirmAction = async () => {
+        if (action === 'accept') {
+            await updateProductStatus(selectedProductId, 'public');
+        } else if (action === 'reject') {
+            await updateProductStatus(selectedProductId, 'rejected');
+        }
+        setProducts(prevProducts =>
+            prevProducts.map(product =>
+                product.productId === selectedProductId ? { ...product, status: action === 'accept' ? 'public' : 'Rejected' } : product
+            )
+        );
+        setIsModalVisible(false);
+    };
+
+    const cancelAction = () => {
+        setIsModalVisible(false);
+    };
+
+    // Open modal to view the image
     const openImageModal = (image) => {
         setSelectedImage(image);
     };
 
+    // Close image modal
     const closeImageModal = () => {
         setSelectedImage(null);
     };
@@ -95,48 +81,52 @@ export const SensorProduct = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {products.map((product) => (
-                            <tr key={product.id} className="border-b border-gray-200">
-                                <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                                    {product.productName}
-                                </td>
-                                <td className="px-6 py-4">{product.category}</td>
-                                <td className="px-6 py-4">{product.price} VNĐ</td>
-                                <td className="px-6 py-4">{product.description}</td>
-                                <td className="px-6 py-4">{product.status}</td>
-                                <td className="px-6 py-4 ">
-                                    <div className='flex  space-x-2'>
-                                    {product.images.map((img, index) => (
-                                        <img
-                                            key={index}
-                                            src={img}
-                                            alt={`Product ${product.productName}`}
-                                            className="w-14 h-14 object-cover cursor-pointer"
-                                            onClick={() => openImageModal(img)}
-                                        />
-                                    ))} 
-                                    </div>
-                                   
-                                </td>
-                                <td className="px-6 py-4 ">
-                                    <div className='flex space-x-2'>
-                                    <button
-                                        onClick={() => handleAccept(product.id)}
-                                        className="bg-green-500 text-white p-2 rounded flex items-center justify-center"
-                                    >
-                                        <FaCheck size={18} />
-                                    </button>
-                                    <button
-                                        onClick={() => handleReject(product.id)}
-                                        className="bg-red-500 text-white p-2 rounded flex items-center justify-center"
-                                    >
-                                        <FaTimes size={18} />
-                                    </button>
-                                    </div>
-                                   
-                                </td>
+                        {products.length > 0 ? (
+                            products.map((product) => (
+                                <tr key={product.productId} className="border-b border-gray-200">
+                                    <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                                        {product.productName}
+                                    </td>
+                                    <td className="px-6 py-4">{product.category.title}</td>
+                                    <td className="px-6 py-4">{product.price} VNĐ</td>
+                                    <td className="px-6 py-4">{product.description}</td>
+                                    <td className="px-6 py-4">{product.status}</td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex space-x-2">
+                                            {product.images.map((img, index) => (
+                                                <img
+                                                    key={index}
+                                                    src={img.path}
+                                                    alt={`Product ${product.productName}`}
+                                                    className="w-14 h-14 object-cover cursor-pointer"
+                                                    onClick={() => openImageModal(img)}
+                                                />
+                                            ))}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex space-x-2">
+                                            <button
+                                                onClick={() => handleAccept(product.productId)} // Update to use productId
+                                                className="bg-green-500 text-white p-2 rounded flex items-center justify-center"
+                                            >
+                                                <FaCheck size={18} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleReject(product.productId)} // Update to use productId
+                                                className="bg-red-500 text-white p-2 rounded flex items-center justify-center"
+                                            >
+                                                <FaTimes size={18} />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="7" className="text-center px-6 py-4">Không có sản phẩm</td>
                             </tr>
-                        ))}
+                        )}
                     </tbody>
                 </table>
             </div>
@@ -152,7 +142,7 @@ export const SensorProduct = () => {
                             <FaTimes size={24} />
                         </button>
                         <h2 className="text-lg font-bold text-center mb-2">Hình ảnh sản phẩm</h2>
-                        <img src={selectedImage} alt="Selected Product" className="w-80 h-auto mt-2 mx-auto" />
+                        <img src={selectedImage.path} alt="Selected Product" className="w-80 h-auto mt-2 mx-auto" />
                         <div className="mt-4 flex justify-end">
                             <button onClick={closeImageModal} className="bg-gray-300 text-gray-700 px-4 py-2 rounded">
                                 Đóng
@@ -161,6 +151,14 @@ export const SensorProduct = () => {
                     </div>
                 </div>
             )}
+
+            {/* Confirmation Modal */}
+            <ConfirmationModal
+                isVisible={isModalVisible}
+                onConfirm={confirmAction}
+                onCancel={cancelAction}
+                message="Bạn có chắc chắn muốn thực hiện hành động này?"
+            />
         </div>
     );
 };

@@ -39,7 +39,7 @@ export const Cart = () => {
 
     // Calculate the total price of all products in the cart
     const calculateGrandTotal = () => {
-        return products.reduce((acc, product) => acc + (product.subtotal || 0), 0).toFixed(2);
+        return products.reduce((acc, product) => acc + (product.subtotal || 0), 0).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
     };
 
     // Remove a product from the cart
@@ -65,12 +65,12 @@ export const Cart = () => {
                     </thead>
                     <tbody className="list-product">
                         {products.map((product, index) => (
-                            <tr key={index} className="items-center">
+                            <tr key={index} className="">
                                 <td className="flex items-center space-x-4">
                                     <img src={product.img} alt={product.title} className="object-cover h-[80px]" />
                                     <div>{product.title}</div>
                                 </td>
-                                <td className="text-center">${product.price.toFixed(2)}</td>
+                                <td className="text-center">{product.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</td>
                                 <td className="text-center">
                                     <div className="flex justify-center">
                                         <div className="items-center justify-center border border-[#131118] px-2 rounded-lg">
@@ -95,7 +95,7 @@ export const Cart = () => {
                                         </div>
                                     </div>
                                 </td>
-                                <td className="text-center">${product.subtotal.toFixed(2)}</td>
+                                <td className="text-center">{product.subtotal.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</td>
                                 <td className="text-center">
                                     <FaRegTrashCan
                                         className="cursor-pointer text-red-500"
@@ -111,7 +111,7 @@ export const Cart = () => {
                         <h3 className="border-b font-bold pb-3">Order summary</h3>
                         <div className="flex justify-between py-5">
                             <div className="font-semibold">Grand Total</div>
-                            <div className="font-semibold">${calculateGrandTotal()}</div>
+                            <div className="font-semibold">{calculateGrandTotal()}</div>
                         </div>
                         <div>
                             <button className="text-white rounded-lg p-[18px] bg-primary w-full">

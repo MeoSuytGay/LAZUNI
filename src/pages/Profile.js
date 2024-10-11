@@ -3,8 +3,10 @@ import { Sider } from '../components/sider/Sider';
 import { ChangePassword } from '../components/Profile/ChangePassword';
 import { ProfileInfor } from '../components/Profile/ProfileInfor';
 import { UpradeAccount } from '../components/Profile/UpradeAccount';
-import { ReportHistory } from '../components/ReportHistory';
+import { ReportHistory } from '../components/Profile/ReportHistory';
 import { useSearchParams } from 'react-router-dom';
+import { BlanceFlucation } from '../components/Profile/BlanceFlucation';
+import { ViewSatic } from '../components/Profile/ViewStatic';
 
 export const Profile = () => {
   // Initialize searchParams using useSearchParams
@@ -36,6 +38,14 @@ export const Profile = () => {
     setActiveSection('reportHistory');
   };
 
+  const handleBlanceFlucation = () => {
+    setActiveSection('blanceFlucation');
+  };
+
+  const handleToggleViewStatic = () => {
+    setActiveSection('viewStatic');
+  };
+
   return (
     <div className="container mx-auto my-[150px]">
       <div className="flex">
@@ -45,7 +55,9 @@ export const Profile = () => {
             onToggleProfileInfo={handleToggleProfileInfo} 
             onToggleChangePassword={handleToggleChangePassword} 
             onToggleUpgradeAccount={handleToggleUpgradeAccount} 
-            onToggleReport={handleToggleReportHistory}
+            onToggleReportHistory={handleToggleReportHistory} 
+            onToggleBlanceFlucation={handleBlanceFlucation}  
+            onToggleViewStatic={handleToggleViewStatic}  
           />
         </div>
         <div className="flex-1 ml-[20px]">
@@ -54,6 +66,8 @@ export const Profile = () => {
             {activeSection === 'changePassword' && <ChangePassword />} 
             {activeSection === 'upgradeAccount' && <UpradeAccount />} 
             {activeSection === 'reportHistory' && <ReportHistory />}
+            {activeSection === 'blanceFlucation' && <BlanceFlucation />}
+            {activeSection === 'viewStatic' && <ViewSatic />} 
           </main>
         </div>
       </div>

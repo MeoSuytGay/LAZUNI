@@ -4,10 +4,11 @@ import axios from 'axios';
 export const SuggestProductServices = async () => {
     try {
         // Destructure the data from the response
-        const { data } = await axios.get('http://localhost:8080/products');
+        const response = await axios.get('http://localhost:8080/products');
+        
         
         // Return the list of products from the data
-        return data;
+        return response.data;
     } catch (error) {
         // Provide a detailed error message and throw it
         console.error("Error fetching suggested products from the API: ", error.message);

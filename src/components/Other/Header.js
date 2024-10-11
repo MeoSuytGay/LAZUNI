@@ -162,13 +162,13 @@ export const Header = () => {
                                         <div className="px-4 py-2">
                                             <div className="font-semibold">Statistical</div>
                                             <button
-                                                onClick={() => handleProfileNavigation('balanceFluctuation')}
+                                                onClick={() => handleProfileNavigation('blanceFlucation')}
                                                 className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                                             >
                                                 View Balance Fluctuation
                                             </button>
                                             <button
-                                                onClick={() => handleProfileNavigation('viewStatistics')}
+                                                onClick={() => handleProfileNavigation('viewStatic')}
                                                 className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                                             >
                                                 View Statistics

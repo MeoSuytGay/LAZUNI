@@ -34,10 +34,11 @@ function App() {
             <Route index element={<Products />} />
             <Route path=":productId" element={<ProductDetail />} />
           </Route>
-          <Route path='users'>
-            <Route index element={<HomePage />} />
-            <Route path=":userId" element={<ShopVendors />} />
-          </Route>
+        
+          <Route path="shop">
+                <Route index element={<HomePage />} />
+                <Route path=":userId" element={<ShopVendors />} /> {/* Dynamic route for userId */}
+            </Route>
           <Route path="manageproducts" element={<ManageProducts />} />
         </Route>
         <Route path="login" element={<Login />} />

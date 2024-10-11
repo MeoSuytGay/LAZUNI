@@ -4,8 +4,17 @@ import { GrUpgrade } from "react-icons/gr";
 import { IoSettingsOutline } from "react-icons/io5";
 import { FaRegFileAlt } from "react-icons/fa";
 import AvatarImage from '../../assets/images/avatar-default.jpg';
-
-export const Sider = ({ activeSection, onToggleProfileInfo, onToggleChangePassword, onToggleUpgradeAccount,onToggleReport }) => {
+import { CiMoneyCheck1 } from "react-icons/ci";
+import { FaHistory } from "react-icons/fa";
+export const Sider = ({ 
+  activeSection, 
+  onToggleProfileInfo, 
+  onToggleChangePassword, 
+  onToggleUpgradeAccount,
+  onToggleReportHistory,  // Changed name for consistency
+  onToggleBlanceFlucation, // Added missing handler for balance fluctuation
+  onToggleViewStatic // Added missing handler for ViewStatic
+}) => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -27,7 +36,7 @@ export const Sider = ({ activeSection, onToggleProfileInfo, onToggleChangePasswo
       </a>
 
       <div 
-        className={`hover:bg-primary  hover:text-white p-4 font-medium ${activeSection === 'profileInfo' ? 'bg-primary text-white' : ''}`} 
+        className={`hover:bg-primary hover:text-white p-4 font-medium ${activeSection === 'profileInfo' ? 'bg-primary text-white' : ''}`} 
         onClick={onToggleProfileInfo}
       >
         <a href="#" className='flex items-center'>
@@ -55,22 +64,38 @@ export const Sider = ({ activeSection, onToggleProfileInfo, onToggleChangePasswo
           <h2>Upgrade Account</h2>
         </a>
       </div>
+      
       <div 
        className={`hover:bg-primary hover:text-white p-4 font-medium ${activeSection === 'reportHistory' ? 'bg-primary text-white' : ''}`} 
-       onClick={onToggleReport}
+       onClick={onToggleReportHistory}  // Updated to match the function name
       >
         <a href="#" className='flex items-center'>
-        <div className='mr-[10px]'><FaRegFileAlt /></div>
+          <div className='mr-[10px]'><FaHistory /></div>
           <h2>View Report History</h2>
         </a>
       </div>
 
-      {/* <div className='hover:bg-primary  hover:text-white p-4 font-medium'>
+      {/* New Section for Blance Fluctuation */}
+      <div 
+       className={`hover:bg-primary hover:text-white p-4 font-medium ${activeSection === 'blanceFlucation' ? 'bg-primary text-white' : ''}`} 
+       onClick={onToggleBlanceFlucation}
+      >
         <a href="#" className='flex items-center'>
-          <div className='mr-[10px]'><CiHeart /></div>
-          <h2>My Wishlists</h2>
+          <div className='mr-[10px]'><CiMoneyCheck1 /></div>
+          <h2>Balance Fluctuation</h2>
         </a>
-      </div> */}
+      </div>
+
+      {/* New Section for View Static */}
+      <div 
+       className={`hover:bg-primary hover:text-white p-4 font-medium ${activeSection === 'viewStatic' ? 'bg-primary text-white' : ''}`} 
+       onClick={onToggleViewStatic}
+      >
+        <a href="#" className='flex items-center'>
+          <div className='mr-[10px]'><FaRegFileAlt /></div>
+          <h2>View Static Data</h2>
+        </a>
+      </div>
     </div>
   );
 };
