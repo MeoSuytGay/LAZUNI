@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { ListProductByUserIdServices } from '../../services/ListProductByUserIdServices';
+import { UpdateStatusService } from '../../services/UpdateStatusProductServices';
 
 export const InventoryProduct = ({ userId, status }) => {
   console.log(userId, status);
@@ -60,8 +61,15 @@ export const InventoryProduct = ({ userId, status }) => {
   };
 
   // Hide product
-  const handleHideClick = (productId) => {
-    setHiddenProducts((prev) => new Set(prev).add(productId)); // Add product ID to hidden set
+  const handlePublicClick = async (productId) => {
+    console.log(productId)
+    try {
+      const response = await UpdateStatusService(productId, 'public'); // Update the product status to 'hidden'
+      console.log(response); // Check the response
+      setHiddenProducts((prev) => new Set(prev).add(productId)); // Add product ID to hidden set locally
+    } catch (error) {
+      console.error('Error hiding product:', error); // Handle errors
+    }
   };
 
   // Toggle the edit/delete menu
@@ -159,10 +167,10 @@ export const InventoryProduct = ({ userId, status }) => {
 
                   {/* Hide Product Button */}
                   <button
-                    onClick={() => handleHideClick(product.productId)}
+                    onClick={() => handlePublicClick(product.productId)}
                     className="block w-2/5 px-4 border py-2 text-sm text-gray-700 hover:bg-gray-100 mt-10"
                   >
-                    Ẩn sản phẩm
+                    Hiện sản phẩm
                   </button>
                 </div>
               ))

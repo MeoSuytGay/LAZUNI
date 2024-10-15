@@ -4,8 +4,9 @@ import axios from "axios";
 
 export const UpdateStatusService= async (productId,status)=>{
     try {
+   
 
-        const response = await axios.get(`http://localhost:8080/products/shop?productId=${productId}&status=${status}`);
+        const response = await axios.put(`http://localhost:8080/products/update?productId=${productId}&status=${status}`);
   
   
         console.log(response.data)

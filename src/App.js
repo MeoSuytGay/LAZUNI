@@ -19,6 +19,8 @@ import { ManageProducts } from './pages/ManageProducts';
 import { AdminPage } from './pages/AdminPage';
 import { EditProduct } from './components/ManagementProduct/EditProduct';
 import { DepositSuccessful } from './components/DepositeSuccessfull';
+import { OfferPage } from './pages/OfferPage';
+import { CheckOut } from './components/CheckOut/CheckOut';
 
 function App() {
   return (
@@ -40,12 +42,14 @@ function App() {
                 <Route path=":userId" element={<ShopVendors />} /> {/* Dynamic route for userId */}
             </Route>
           <Route path="manageproducts" element={<ManageProducts />} />
+          <Route path="offer" element={<OfferPage />} />
+          <Route path="checkout" element={<CheckOut />} />
         </Route>
         <Route path="login" element={<Login />} />
         <Route path="signUp" element={<Signup />} />
         <Route path="enterOtp" element={<EnterOtp />} />
         <Route path="forgetPassword" element={<ForgetPassword />} />
-       
+ 
         <Route path="despositesucess" element={<DepositSuccessful/>} />
         <Route path="UploadProduct" element={<UploadProduct/>} />
         <Route path="editproduct" element={<EditProduct/>} />

@@ -51,7 +51,7 @@ export const Cart = () => {
 
     return (
         <div className="container mx-auto h-[500px] my-[50px]">
-            <h2 className="font-bold text-primary row text-[30px] my-[20px]">Check Out</h2>
+            <h2 className="font-bold text-primary row text-[30px] my-[20px]">Cart</h2>
             <div className="flex justify-between">
                 <table className="table-auto w-full text-left border-separate border-spacing-y-4">
                     <thead>
@@ -66,7 +66,7 @@ export const Cart = () => {
                     <tbody className="list-product">
                         {products.map((product, index) => (
                             <tr key={index} className="">
-                                <td className="flex items-center space-x-4">
+                                <td className="flex items-center space-x-4 mt-[25px]">
                                     <img src={product.img} alt={product.title} className="object-cover h-[80px]" />
                                     <div>{product.title}</div>
                                 </td>
@@ -115,7 +115,7 @@ export const Cart = () => {
                         </div>
                         <div>
                             <button className="text-white rounded-lg p-[18px] bg-primary w-full">
-                                Proceed to CheckOut
+                             CheckOut
                             </button>
                         </div>
                     </div>

@@ -124,16 +124,14 @@ export const ProductDetail = () => {
             price: productDetail.price,
             quantity: quantity,
         };
-
+    
         const user = JSON.parse(localStorage.getItem('user'));
         const userId = user ? user.userId : 'guest'; // Use 'guest' if no user is logged in
-
-
+    
         const existingCart = JSON.parse(sessionStorage.getItem(`cart_${userId}`)) || [];
-
-
+    
         const productIndex = existingCart.findIndex(item => item.id === productDetail.id);
-
+    
         if (productIndex !== -1) {
             // If the product exists, update its quantity
             existingCart[productIndex].quantity += quantity;
@@ -141,10 +139,14 @@ export const ProductDetail = () => {
             // If the product doesn't exist, add it to the cart
             existingCart.push(productToAdd);
         }
-
+    
         // Save the updated cart to sessionStorage
         sessionStorage.setItem(`cart_${userId}`, JSON.stringify(existingCart));
+    
+        // Show a success message
+        alert("Added to cart successfully!");
     };
+    
 
 
     if (loading) {
@@ -258,25 +260,7 @@ export const ProductDetail = () => {
                             </div>
 
 
-                            {showExchangeList && (
-                                <div className="my-5 border rounded p-4">
-                                    <div className="font-semibold text-lg mb-2">Chọn sản phẩm để trao đổi:</div>
-                                    <div className="grid grid-cols-3 gap-4">
-                                        {data.map((item) => (
-                                            <div
-                                                key={item.id}
-                                                className={`border p-2 flex items-center cursor-pointer ${selectedProductIds.includes(item.id) ? 'bg-gray-200' : ''}`}
-                                                onClick={() => toggleProductSelection(item.id)}
-                                            >
-                                                <img src={item.img} alt={item.name} className="w-12 h-12 object-cover " />
-                                                <div className="ml-2">{item.name}-</div>
-                                                <div className="text-red-500">đ{item.price}</div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <button onClick={confirmExchange} className="mt-4 border p-3 bg-primary text-white">Xác nhận</button>
-                                </div>
-                            )}
+                      
                         </div>
                     </div>
                     <div className="my-10">

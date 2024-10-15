@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ListProductByUserIdServices } from '../../services/ListProductByUserIdServices'; // Assuming you have this service for fetching products
+import { updateProductStatus } from '../../services/SensorProductServices';
+import { UpdateStatusService } from '../../services/UpdateStatusProductServices';
 
 export const PublicProduct = ({ userId, status }) => {
-  console.log(userId, status);
+ 
   const [products, setProducts] = useState([]); // Store all products
   const [displayedProducts, setDisplayedProducts] = useState([]); // Store filtered and sorted products
   const [searchTerm, setSearchTerm] = useState(''); // Search term
@@ -59,9 +61,17 @@ export const PublicProduct = ({ userId, status }) => {
   };
 
   // Hide product
-  const handleHideClick = (productId) => {
-    setHiddenProducts((prev) => new Set(prev).add(productId)); // Add product ID to hidden set
+  const handleHideClick = async (productId) => {
+    console.log(productId)
+    try {
+      const response = await UpdateStatusService(productId, 'hide'); // Update the product status to 'hidden'
+      console.log(response); // Check the response
+      setHiddenProducts((prev) => new Set(prev).add(productId)); // Add product ID to hidden set locally
+    } catch (error) {
+      console.error('Error hiding product:', error); // Handle errors
+    }
   };
+  
 
   // Toggle the edit/delete menu
   const [menuOpen, setMenuOpen] = useState(null);

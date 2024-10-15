@@ -1,48 +1,56 @@
-import React, { useState } from 'react';
-import { FaReply } from 'react-icons/fa'; // Nhập icon để phản hồi báo cáo
+import React, { useState, useEffect } from 'react';
+import { FaReply } from 'react-icons/fa'; 
+import { AdminReportServices } from '../../services/AdminReportServices'; // Import your service
 
 export const ReportList = () => {
-  const [reports, setReports] = useState([
-    { title: 'Báo cáo 1', description: 'Vấn đề với giao hàng sản phẩm', productName: 'Laptop', state: 'Chưa giải quyết', result: '' },
-    { title: 'Báo cáo 2', description: 'Nhận sai sản phẩm', productName: 'Smartphone', state: 'Chưa giải quyết', result: '' },
-    { title: 'Báo cáo 3', description: 'Giao hàng trễ', productName: 'Sách', state: 'Chưa giải quyết', result: '' },
-    { title: 'Báo cáo 4', description: 'Giao hàng trễ', productName: 'Sách', state: 'Chưa giải quyết', result: '' },
-    { title: 'Báo cáo 5', description: 'Giao hàng trễ', productName: 'Sách', state: 'Chưa giải quyết', result: '' },
-    { title: 'Báo cáo 6', description: 'Giao hàng trễ', productName: 'Sách', state: 'Chưa giải quyết', result: '' },
-    { title: 'Báo cáo 7', description: 'Giao hàng trễ', productName: 'Sách', state: 'Chưa giải quyết', result: '' },
-    { title: 'Báo cáo 8', description: 'Giao hàng trễ', productName: 'Sách', state: 'Chưa giải quyết', result: '' },
-    { title: 'Báo cáo 9', description: 'Giao hàng trễ', productName: 'Sách', state: 'Chưa giải quyết', result: '' },
-  ]);
-
+  const [reports, setReports] = useState([]);
   const [responseText, setResponseText] = useState('');
   const [selectedReport, setSelectedReport] = useState(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
-  // Hàm xác định màu nền dựa trên trạng thái báo cáo
+  // Fetch reports from AdminReportServices on component mount
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        const data = await AdminReportServices(); // Call the AdminReportServices function
+        setReports(data); // Set the fetched data to reports state
+      } catch (error) {
+        console.error('Error fetching reports:', error);
+      }
+    };
+
+    fetchReports();
+  }, []);
+
+  // Function to determine background color based on report status
   const getStateColor = (state) => {
-    return state === 'Chưa giải quyết' ? 'bg-yellow-200 text-yellow-800' : 'bg-green-200 text-green-800';
+    return state === 'pending' ? 'bg-yellow-200 text-yellow-800' : 'bg-green-200 text-green-800';
   };
 
-  // Hàm xử lý phản hồi báo cáo
+  // Handle respond to report
   const handleRespond = (report) => {
-    setSelectedReport(report); // Lưu báo cáo đang phản hồi
-    setIsPopupOpen(true); // Mở popup
+    setSelectedReport(report); // Set the report to respond to
+    setIsPopupOpen(true); // Open popup
   };
 
-  // Hàm gửi phản hồi
+  // Handle submit response
   const handleSubmitResponse = () => {
     if (selectedReport) {
-      // Cập nhật báo cáo với phản hồi và thay đổi trạng thái thành 'Đã giải quyết'
+      // Update the report with response and set status to 'Đã giải quyết'
       const updatedReport = {
         ...selectedReport,
-        result: responseText,
-        state: 'Đã giải quyết' // Thay đổi trạng thái thành Đã giải quyết
+        responseMessage: responseText, // Use responseMessage to match your object
+        state: 'Đã giải quyết',
       };
 
-      // Cập nhật trạng thái báo cáo
-      setReports(prevReports => prevReports.map(report => report.title === updatedReport.title ? updatedReport : report));
+      // Update the report in the list
+      setReports((prevReports) =>
+        prevReports.map((report) =>
+          report.title === updatedReport.title ? updatedReport : report
+        )
+      );
 
-      // Xóa nội dung và đóng popup
+      // Clear the response text and close popup
       setResponseText('');
       setIsPopupOpen(false);
       setSelectedReport(null);
@@ -69,22 +77,20 @@ export const ReportList = () => {
                 <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                   {report.title}
                 </td>
-                <td className="px-6 py-4">
-                  {report.description}
-                </td>
-                <td className="px-6 py-4">
-                  {report.productName}
-                </td>
+                <td className="px-6 py-4">{report.description}</td>
+                <td className="px-6 py-4">{report.productName}</td>
                 <td className={`px-6 py-4 ${getStateColor(report.state)}`}>
-                  {report.state}
-                </td>
-                <td className="px-6 py-4">
-                  {report.result || 'Chưa có phản hồi'}
-                </td>
-                <td className="px-6 py-4">
-                  {report.state === 'Chưa giải quyết' && (
-                    <button onClick={() => handleRespond(report)} className="text-blue-500">
-                      <FaReply />
+  {report.state === 'pending' ? 'Chưa giải quyết' : report.state}
+</td>
+
+                <td className="px-6 py-4">{report.responseMessage || 'Chưa có phản hồi'}</td>
+                <td   d className="px-6 py-4">
+                  {report.state === 'pending' && (
+                    <button
+                      onClick={() => handleRespond(report)}
+                      className="text-blue-500"
+                    >
+                      <FaReply  />
                     </button>
                   )}
                 </td>
@@ -94,22 +100,28 @@ export const ReportList = () => {
         </table>
       </div>
 
-      {/* Popup để nhập phản hồi */}
+      {/* Popup to enter the response */}
       {isPopupOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg p-5 shadow-md">
             <h2 className="text-lg font-bold">Phản hồi cho báo cáo</h2>
-            <textarea 
+            <textarea
               value={responseText}
               onChange={(e) => setResponseText(e.target.value)}
               placeholder="Nhập phản hồi của bạn ở đây..."
               className="w-full p-2 border border-gray-300 rounded"
             />
             <div className="mt-4 flex justify-end">
-              <button onClick={handleSubmitResponse} className="bg-blue-500 text-white px-4 py-2 rounded">
+              <button
+                onClick={handleSubmitResponse}
+                className="bg-blue-500 text-white px-4 py-2 rounded"
+              >
                 Gửi
               </button>
-              <button onClick={() => setIsPopupOpen(false)} className="ml-2 bg-gray-300 text-gray-700 px-4 py-2 rounded">
+              <button
+                onClick={() => setIsPopupOpen(false)}
+                className="ml-2 bg-gray-300 text-gray-700 px-4 py-2 rounded"
+              >
                 Hủy
               </button>
             </div>

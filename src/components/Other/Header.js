@@ -90,7 +90,7 @@ export const Header = () => {
                         <Link to="/Cart">
                             <IoCartOutline size={24} className="hover:text-stone-600" />
                         </Link>
-                        <Link to="#">
+                        <Link to="/Offer">
                             <FiShoppingBag size={24} className="hover:text-stone-600" />
                         </Link>
                         <Link to="/manageproducts" className="flex items-center space-x-2">
