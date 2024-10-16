@@ -19,7 +19,7 @@ export const HomePage = () => {
           <Carousel slides={slides} />
             </div>
           
-          <Categories />
+          {/* <Categories /> */}
           <SuggestProduct />
         </div>
       </div>

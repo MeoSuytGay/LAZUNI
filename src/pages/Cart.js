@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { FaRegTrashCan } from "react-icons/fa6";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 export const Cart = () => {
     const [products, setProducts] = useState([]);
+    const navigate = useNavigate(); // Initialize navigate
 
     // Retrieve userId from localStorage
     const user = JSON.parse(localStorage.getItem('user')); // Get user object from localStorage
@@ -47,6 +49,12 @@ export const Cart = () => {
         const updatedProducts = products.filter((_, i) => i !== index);
         setProducts(updatedProducts);
         sessionStorage.setItem(`cart_${userId}`, JSON.stringify(updatedProducts)); // Update cart
+    };
+ 
+
+    // Handle checkout button click
+    const handleCheckOut = () => {
+        navigate('/checkout', { state: { products } }); // Navigate to checkout and pass products as state
     };
 
     return (
@@ -114,7 +122,10 @@ export const Cart = () => {
                             <div className="font-semibold">{calculateGrandTotal()}</div>
                         </div>
                         <div>
-                            <button className="text-white rounded-lg p-[18px] bg-primary w-full">
+                            <button 
+                                className="text-white rounded-lg p-[18px] bg-primary w-full"
+                                onClick={handleCheckOut} // Call handleCheckOut on click
+                            >
                              CheckOut
                             </button>
                         </div>

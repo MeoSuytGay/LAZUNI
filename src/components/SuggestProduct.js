@@ -79,7 +79,7 @@ export const SuggestProduct = () => {
                                         </div>
                                         <div className="mb-4 mt-2 w-full text-left flex justify-between p-2">
                                             {/* Product title with 2-line clamp */}
-                                            <div className="w-9/12 text-ellipsis overflow-hidden line-clamp-2">
+                                            <div className="w-9/12 h-[50px] text-ellipsis overflow-hidden line-clamp-2">
                                                 {product.productName}
                                             </div>
                                             <div className="w-1/12 mt-[4px]" onClick={(e) => {

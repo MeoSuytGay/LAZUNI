@@ -13,7 +13,7 @@ import { CiChat1 } from "react-icons/ci";
 import { CiShop } from "react-icons/ci";
 import { FeedBack } from "../components/Feedback";
 import { MdOutlineReport } from "react-icons/md";
-
+import { useNavigate } from "react-router-dom"; 
 import ConfirmPurchasePopup from '../components/Popup/Confirm';
 import ReportPopup from "../components/Popup/ReportProduct";
 import { Carousel } from "../components/Other/HomeBanner";
@@ -28,6 +28,7 @@ export const ProductDetail = () => {
     const [isReportPopupOpen, setReportPopupOpen] = useState(false);
     const [isConfirmPopupOpen, setConfirmPopupOpen] = useState(false);
     const user = JSON.parse(localStorage.getItem("user"));
+    const navigate = useNavigate(); 
     const data = [
         {
             id: 1,
@@ -67,7 +68,7 @@ export const ProductDetail = () => {
     }, [productId]);
 
     const increaseQuantity = () => {
-        if (quantity < productDetail.minimumOrderQuantity) {
+        if (quantity < productDetail.quantity) {
             setQuantity(quantity + 1);
         }
     };
@@ -110,12 +111,24 @@ export const ProductDetail = () => {
     const handleBuyNow = () => {
         setConfirmPopupOpen(true);
     };
-
     const confirmPurchase = () => {
-        // Logic to handle the purchase can go here
-        alert(`You have purchased ${productDetail.title} (Quantity: ${quantity})`);
-        setConfirmPopupOpen(false);
+        const Products = {
+            id: productDetail.productId,
+            title: productDetail.productName,
+            img: productDetail.images[0].path,
+            price: productDetail.price,
+            subtotal: productDetail.price * quantity, // Calculate subtotal based on quantity
+            quantity: quantity,
+        };
+    
+        // Redirect to the checkout page with the product details as an array
+        navigate('/checkout', {
+            state: {
+               products: [Products] // Pass the product as an array
+            }
+        });
     };
+    
     const handleAddToCart = () => {
         const productToAdd = {
             id: productDetail.productId,
@@ -194,11 +207,12 @@ export const ProductDetail = () => {
                             <div className="flex my-7">
                                 <div className="w-1/6 text-[#757575]">Số lượng</div>
                                 <div className="w-5/6 flex items-center ml-[10px] ">
-                                    <button onClick={decreaseQuantity} className="px-3 py-1 border hover:bg-gray-300 rounded-l">-</button>
-                                    <div className="text-[#757575] mx-2">{quantity}</div>
-                                    <button onClick={increaseQuantity} className="px-3 py-1 border hover:bg-gray-300 rounded-r">+</button>
-                                    <div className="text-[#757575] ml-2">{productDetail.quantity} sản phẩm có sẵn</div>
-                                </div>
+    <button onClick={decreaseQuantity} className="px-3 py-1 border hover:bg-gray-300 rounded-l">-</button>
+    <div className="text-[#757575] mx-2">{quantity}</div>
+    <button onClick={increaseQuantity} className="px-3 py-1 border hover:bg-gray-300 rounded-r">+</button>
+    <div className="text-[#757575] ml-2">{productDetail.quantity} sản phẩm có sẵn</div>
+</div>
+
                             </div>
                             <div className=" my-7">
                                 {/* Conditionally render buttons based on product type */}

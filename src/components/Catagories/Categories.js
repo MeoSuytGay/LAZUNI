@@ -7,7 +7,7 @@ export const Categories = () => {
     useEffect(() => {
         const fetchCategories = async () => {
             const data = await CategoriesServices(); // Call the service to fetch categories
-            setCategories(data); // Update state with fetched data
+            setCategories(data ); // Update state with fetched data
         };
 
         fetchCategories(); // Fetch categories when the component mounts

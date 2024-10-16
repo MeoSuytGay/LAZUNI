@@ -1,88 +1,100 @@
 import { useState, useEffect } from "react";
+import { CategoriesServices } from "../../services/CategoriesServices";
 
-export const ManagementCatories = () => {
+export const ManagementCategories = () => {
     const [categories, setCategories] = useState([]);
-    const [newCategory, setNewCategory] = useState({ name: "", image: "" });
+    const [newCategory, setNewCategory] = useState({ title: "", image: "" });
     const [editingCategory, setEditingCategory] = useState(null);
     const [editingImage, setEditingImage] = useState("");
     const [imageFile, setImageFile] = useState(null);
+    const [showModal, setShowModal] = useState(false);
 
+    // Fetch categories data on component mount
     useEffect(() => {
-        fetch('https://dummyjson.com/products/category-list')
-            .then(res => res.json())
-            .then(data => {
-                const formattedData = data.map(cat => ({
-                    name: cat,
-                    image: `https://via.placeholder.com/150?text=${cat}`
-                }));
-                setCategories(formattedData);
-            })
-            .catch(error => console.error('Error fetching categories:', error));
+        const fetchCategories = async () => {
+            const fetchedCategories = await CategoriesServices();
+            setCategories(fetchedCategories || []);
+        };
+
+        fetchCategories();
     }, []);
 
+    // Handle adding a new category
     const handleAddCategory = () => {
-        if (newCategory.name) {
-            // Cập nhật URL hình ảnh tạm thời
+        if (newCategory.title) {
             const newCatWithImage = {
                 ...newCategory,
                 image: imageFile ? URL.createObjectURL(imageFile) : newCategory.image,
             };
             setCategories([...categories, newCatWithImage]);
-            setNewCategory({ name: "", image: "" });
-            setImageFile(null); // Reset file hình ảnh
+            setNewCategory({ title: "", image: "" });
+            setImageFile(null); // Reset image file
         }
     };
 
-    const handleDeleteCategory = (name) => {
-        setCategories(categories.filter((cat) => cat.name !== name));
+    // Handle deleting a category
+    const handleDeleteCategory = (title) => {
+        setCategories(categories.filter((cat) => cat.title !== title));
     };
 
+    // Handle editing a category
     const handleEditCategory = (category) => {
-        setEditingCategory(category.name);
+        setEditingCategory(category.title);
         setEditingImage(category.image);
+        setShowModal(true); // Show modal when editing starts
     };
 
+    // Handle updating a category
     const handleUpdateCategory = () => {
         if (editingCategory) {
             const updatedCategories = categories.map((cat) =>
-                cat.name === editingCategory
-                    ? { ...cat, name: editingCategory, image: editingImage }
+                cat.title === editingCategory
+                    ? { ...cat, title: editingCategory, image: imageFile ? URL.createObjectURL(imageFile) : editingImage }
                     : cat
             );
             setCategories(updatedCategories);
             setEditingCategory(null);
             setEditingImage("");
+            setImageFile(null); // Reset image file after update
+            setShowModal(false); // Close modal after update
         }
     };
 
+    // Handle file input change
     const handleFileChange = (e) => {
         setImageFile(e.target.files[0]);
     };
 
     return (
-        <div className="p-6 ">
+        <div className="p-6">
             <h2 className="text-2xl font-bold mb-4">Manage Categories</h2>
 
-            {/* Hiển thị danh sách categories */}
-            <div className="grid grid-cols-8 gap-2">
+            {/* Display category list */}
+            <div className="grid grid-cols-7 gap-3">
                 {categories.map((category) => (
                     <div
-                        key={category.name}
-                        className="border rounded-lg p-1 flex flex-col items-center text-center" 
+                        key={category.title}
+                        className="border rounded-lg p-2 flex flex-col items-center text-center transform transition-all duration-300 hover:scale-105"
                     >
-                        <img src={category.image} alt={category.name} className="mb-2 w-16 h-16 object-cover" />
-                        <h3 className="text-lg font-semibold">{category.name}</h3>
+                        <img
+                            src={category.image}
+                            alt={category.title}
+                            className="mb-4 w-24 h-24 object-cover rounded-full"
+                        />
+                        <h3 className="text-lg h-[50px] font-semibold mb-2 line-clamp-2 overflow-hidden text-ellipsis">
+                            {category.title}
+                        </h3>
 
-                        <div className="flex mt-2">
+                        <div className="flex mt-2 space-x-2">
                             <button
                                 onClick={() => handleEditCategory(category)}
-                                className="bg-blue-500 text-white px-2 py-1 text-xs mr-2"
+                                className="bg-blue-500 text-white px-4 py-2 text-sm rounded hover:bg-blue-600 focus:ring-4 focus:ring-blue-300 active:bg-blue-700 transition-all"
                             >
                                 Edit
                             </button>
                             <button
-                                onClick={() => handleDeleteCategory(category.name)}
-                                className="bg-red-500 text-white px-2 py-1 text-xs"
+                                onClick={() => handleDeleteCategory(category.title)}
+                                className="bg-red-500 text-white px-4 py-2 text-sm rounded hover:bg-red-600 focus:ring-4 focus:ring-red-300 active:bg-red-700 transition-all"
                             >
                                 Delete
                             </button>
@@ -90,61 +102,80 @@ export const ManagementCatories = () => {
                     </div>
                 ))}
             </div>
-            <div className="flex items-center space-x-2 mt-4">
+
+            {/* Add new category form */}
+            <div className="flex items-center space-x-4 mt-6">
                 <div>
-                    <h3 className="text-lg font-bold">Add New Category</h3>
+                    <h3 className="text-lg font-bold mb-2">Add New Category</h3>
                     <input
                         type="text"
                         placeholder="Category Name"
-                        value={newCategory.name}
-                        onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
-                        className="border p-1 mr-1 text-sm"
+                        value={newCategory.title}
+                        onChange={(e) =>
+                            setNewCategory({ ...newCategory, title: e.target.value })
+                        }
+                        className="border p-2 text-sm mr-2 rounded"
                     />
                     <input
                         type="file"
                         accept="image/*"
                         onChange={handleFileChange}
-                        className="border p-1 mr-1 text-sm"
+                        className="border p-2 text-sm rounded"
                     />
                     <button
                         onClick={handleAddCategory}
-                        className="bg-green-500 text-white mt-2 px-2 py-1 text-sm"
+                        className="bg-green-500 text-white mt-2 px-4 py-2 text-sm rounded hover:bg-green-600 focus:ring-4 focus:ring-green-300 active:bg-green-700 transition-all"
                     >
                         Add Category
                     </button>
                 </div>
-
-                {/* Form chỉnh sửa danh mục */}
-                {editingCategory && (
-                    <div>
-                        <h3 className="text-lg font-bold">Edit Category</h3>
-                        <input
-                            type="text"
-                            placeholder="Category Name"
-                            value={editingCategory}
-                            onChange={(e) => setEditingCategory(e.target.value)}
-                            className="border p-1 mr-1 text-sm"
-                        />
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleFileChange}
-                            className="border p-1 mr-1 text-sm"
-                        />
-                        <button
-                            onClick={handleUpdateCategory}
-                            className="bg-yellow-500 text-white mt-2 px-2 py-1 text-sm"
-                        >
-                            Update Category
-                        </button>
-                    </div>
-                )}
             </div>
 
-            {/* Thêm danh mục mới */}
-
-
-
+            {/* Edit Category Modal */}
+            {showModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+                        <h3 className="text-lg font-bold mb-4">Edit Category</h3>
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium mb-2">Category Name</label>
+                            <input
+                                type="text"
+                                value={editingCategory}
+                                onChange={(e) => setEditingCategory(e.target.value)}
+                                className="border p-2 w-full rounded"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium mb-2">Category Image</label>
+                            <img
+                                src={editingImage}
+                                alt={editingCategory}
+                                className="mb-2 w-24 h-24 object-cover rounded-full"
+                            />
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileChange}
+                                className="border p-2 w-full rounded"
+                            />
+                        </div>
+                        <div className="flex justify-end space-x-4">
+                            <button
+                                onClick={() => setShowModal(false)}
+                                className="bg-gray-300 text-gray-700 px-4 py-2 text-sm rounded hover:bg-gray-400 focus:ring-4 focus:ring-gray-300 transition-all"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleUpdateCategory}
+                                className="bg-yellow-500 text-white px-4 py-2 text-sm rounded hover:bg-yellow-600 focus:ring-4 focus:ring-yellow-300 active:bg-yellow-700 transition-all"
+                            >
+                                Update
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

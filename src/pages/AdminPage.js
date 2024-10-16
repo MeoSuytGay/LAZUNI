@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AccountList } from "../components/Admin/AccountList";
-import { ManagementCatories } from "../components/Admin/ManagementCatories";
+import { ManagementCategories, ManagementCatories } from "../components/Admin/ManagementCatories";
 import { ReportList } from "../components/Admin/ReportList";
 import { SensorProduct } from "../components/Admin/SensorProduct";
 import { FaList, FaChartBar, FaProductHunt } from "react-icons/fa";
@@ -17,7 +17,7 @@ export const AdminPage = () => {
       case "accountList":
         return <AccountList />;
       case "managementCategories":
-        return <ManagementCatories />;
+        return <ManagementCategories />;
       case "reportList":
         return <ReportList />;
       case "sensorProduct":
@@ -45,7 +45,7 @@ export const AdminPage = () => {
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
-      <div className="w-1/5 bg-gray-800 text-white h-screen flex flex-col justify-between">
+      <div className="w-1/5 bg-gray-800 text-white h-[1000px] flex flex-col justify-between">
         {/* Danh sách các chức năng */}
         <ul className="flex flex-col">
           <li
