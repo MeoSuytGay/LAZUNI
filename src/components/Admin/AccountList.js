@@ -1,37 +1,49 @@
-import React, { useState } from 'react';
-import { FaToggleOn, FaToggleOff } from 'react-icons/fa'; // Nhập icon để đổi trạng thái tài khoản
+import React, { useState, useEffect } from 'react';
+import { FaToggleOn, FaToggleOff } from 'react-icons/fa';
+import axios from 'axios'; // Import axios to handle API calls
+import { AdminAccountServices } from '../../services/AdminAccountServices';
 
 export const AccountList = () => {
-  const [accounts, setAccounts] = useState([
-    { username: 'Nguyễn Văn A', phoneNumber: '0123456789', role: 'User', email: 'nguyenvana@example.com', address: 'Hà Nội', balance: 100.0, status: 'Active' },
-    { username: 'Trần Thị B', phoneNumber: '0987654321', role: 'Admin', email: 'tranthib@example.com', address: 'TP.HCM', balance: 200.0, status: 'Active' },
-    { username: 'Lê Văn C', phoneNumber: '0112233445', role: 'User', email: 'levanc@example.com', address: 'Đà Nẵng', balance: 50.0, status: 'Active' },
-    { username: 'Lê Văn C', phoneNumber: '0112233445', role: 'User', email: 'levanc@example.com', address: 'Đà Nẵng', balance: 50.0, status: 'Active' },
-    { username: 'Lê Văn C', phoneNumber: '0112233445', role: 'User', email: 'levanc@example.com', address: 'Đà Nẵng', balance: 50.0, status: 'Active' },
-    { username: 'Lê Văn C', phoneNumber: '0112233445', role: 'User', email: 'levanc@example.com', address: 'Đà Nẵng', balance: 50.0, status: 'Active' },
-    { username: 'Lê Văn C', phoneNumber: '0112233445', role: 'User', email: 'levanc@example.com', address: 'Đà Nẵng', balance: 50.0, status: 'Active' },
-    { username: 'Lê Văn C', phoneNumber: '0112233445', role: 'User', email: 'levanc@example.com', address: 'Đà Nẵng', balance: 50.0, status: 'Active' },
-    { username: 'Lê Văn C', phoneNumber: '0112233445', role: 'User', email: 'levanc@example.com', address: 'Đà Nẵng', balance: 50.0, status: 'Active' },
- 
-  ]);
-  
+  const [accounts, setAccounts] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
+  const [searchQuery, setSearchQuery] = useState(''); // State to handle search input
 
-  // Hàm cập nhật trạng thái của tài khoản
+  // Fetch account list from AdminAccountServices API when component mounts
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      try {
+        const response = await AdminAccountServices(); // Replace with your API service
+        setAccounts(response); // Assuming the API returns a list of accounts
+      } catch (error) {
+        console.error('Error fetching accounts:', error);
+      }
+    };
+
+    fetchAccounts();
+  }, []);
+
+  // Handle toggling of account status
   const handleToggleStatus = (username) => {
     setSelectedAccount(username);
     setShowPopup(true);
   };
 
-  const confirmToggleStatus = () => {
-    setAccounts(prevAccounts =>
-      prevAccounts.map(account =>
-        account.username === selectedAccount
-          ? { ...account, status: account.status === 'Active' ? 'Inactive' : 'Active' }
-          : account
-      )
-    );
+  const confirmToggleStatus = async () => {
+    try {
+      // Call the API to toggle the account status
+      await axios.put(`/api/admin/accounts/toggle-status`, { username: selectedAccount });
+      setAccounts(prevAccounts =>
+        prevAccounts.map(account =>
+          account.userName === selectedAccount
+            ? { ...account, state: account.state === 'active' ? 'inactive' : 'active' }
+            : account
+        )
+      );
+    } catch (error) {
+      console.error('Error updating account status:', error);
+    }
+
     setShowPopup(false);
     setSelectedAccount(null);
   };
@@ -41,8 +53,24 @@ export const AccountList = () => {
     setSelectedAccount(null);
   };
 
+  // Filter accounts based on search input
+  const filteredAccounts = accounts.filter(account =>
+    account?.userName?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="mx-auto mt-[50px] ml-[20px]">
+      <div className="mb-4">
+        {/* Search Input */}
+        <input
+          type="text"
+          placeholder="Tìm kiếm người dùng..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="border px-4 py-2 rounded w-full"
+        />
+      </div>
+
       <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
         <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
           <thead className="text-[13px] uppercase text-primary">
@@ -58,22 +86,22 @@ export const AccountList = () => {
             </tr>
           </thead>
           <tbody>
-            {accounts.map((account, index) => (
+            {filteredAccounts.map((account, index) => (
               <tr key={index} className="border-b border-gray-200">
                 <td className="px-4 py-4 font-medium text-gray-900 whitespace-nowrap">
-                  {account.username}
+                  {account.userName}
                 </td>
-                <td className="px-4 py-4">{account.phoneNumber}</td>
+                <td className="px-4 py-4">{account.phoneNum}</td>
                 <td className="px-4 py-4">{account.role}</td>
                 <td className="px-4 py-4">{account.email}</td>
                 <td className="px-4 py-4">{account.address}</td>
                 <td className="px-4 py-4">{account.balance}</td>
-                <td className={`px-4 py-4 ${account.status === 'Active' ? 'text-green-600' : 'text-red-600'}`}>
-                  {account.status}
+                <td className={`px-4 py-4 ${account.state === 'active' ? 'text-green-600' : 'text-red-600'}`}>
+                  {account.state}
                 </td>
                 <td className="px-4 py-4">
-                  <button onClick={() => handleToggleStatus(account.username)}>
-                    {account.status === 'Active' ? (
+                  <button onClick={() => handleToggleStatus(account.userName)}>
+                    {account.state === 'active' ? (
                       <FaToggleOn className="text-green-600" />
                     ) : (
                       <FaToggleOff className="text-red-600" />

@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { CategoriesServices } from "../../services/CategoriesServices";
+import { AddCategoryServices } from "../../services/AdminCategoryServices"; // Import AddCategoryServices
+import { DeleteCategoryServices } from "../../services/AdminCategoryServices"; // Import DeleteCategoryServices
 
 export const ManagementCategories = () => {
     const [categories, setCategories] = useState([]);
@@ -8,6 +10,7 @@ export const ManagementCategories = () => {
     const [editingImage, setEditingImage] = useState("");
     const [imageFile, setImageFile] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [errorMessage, setErrorMessage] = useState(null); // To handle errors
 
     // Fetch categories data on component mount
     useEffect(() => {
@@ -20,21 +23,40 @@ export const ManagementCategories = () => {
     }, []);
 
     // Handle adding a new category
-    const handleAddCategory = () => {
+    const handleAddCategory = async () => {
         if (newCategory.title) {
-            const newCatWithImage = {
-                ...newCategory,
-                image: imageFile ? URL.createObjectURL(imageFile) : newCategory.image,
-            };
-            setCategories([...categories, newCatWithImage]);
-            setNewCategory({ title: "", image: "" });
-            setImageFile(null); // Reset image file
+            const formData = new FormData();
+            formData.append("title", newCategory.title);
+            if (imageFile) {
+                formData.append("image", imageFile);
+            }
+
+            try {
+                // Call AddCategoryServices API
+                const addedCategory = await AddCategoryServices(formData);
+
+                if (addedCategory) {
+                    // Add new category to state
+                    setCategories([...categories, addedCategory]);
+                    setNewCategory({ title: "", image: "" });
+                    setImageFile(null); // Reset image file
+                    setErrorMessage(null); // Clear any previous error message
+                }
+            } catch (error) {
+                setErrorMessage("Failed to add category. Please try again."); // Handle error
+            }
         }
     };
 
     // Handle deleting a category
-    const handleDeleteCategory = (title) => {
-        setCategories(categories.filter((cat) => cat.title !== title));
+    const handleDeleteCategory = async (categoryId) => {
+        try {
+            // Call DeleteCategoryServices API
+            await DeleteCategoryServices(categoryId);
+            setCategories(categories.filter((cat) => cat.id !== categoryId)); // Remove category from state
+        } catch (error) {
+            setErrorMessage("Failed to delete category. Please try again."); // Handle error
+        }
     };
 
     // Handle editing a category
@@ -93,7 +115,7 @@ export const ManagementCategories = () => {
                                 Edit
                             </button>
                             <button
-                                onClick={() => handleDeleteCategory(category.title)}
+                                onClick={() => handleDeleteCategory(category.categoryId)} // Send categoryId
                                 className="bg-red-500 text-white px-4 py-2 text-sm rounded hover:bg-red-600 focus:ring-4 focus:ring-red-300 active:bg-red-700 transition-all"
                             >
                                 Delete
@@ -128,6 +150,7 @@ export const ManagementCategories = () => {
                     >
                         Add Category
                     </button>
+                    {errorMessage && <p className="text-red-500 mt-2">{errorMessage}</p>}
                 </div>
             </div>
 

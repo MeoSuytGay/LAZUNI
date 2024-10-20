@@ -20,3 +20,23 @@ export const AdminReportServices = async () => {
     }
   };
   
+
+  export const AdminResponseServices = async (reportId, responseMessage) => {
+    try {
+        // Send reportId and responseMessage as query parameters using RequestParam
+        const response = await axios.post(
+            `http://localhost:8080/reports/answerReport`,
+            null, // No request body, using query parameters instead
+            {
+                params: {
+                    reportId, // Query param for report ID
+                    responseMessage, // Query param for response message
+                },
+            }
+        );
+        return response.data; // Return the updated report data
+    } catch (error) {
+        console.error("Error answering report:", error);
+        throw error; // Re-throw error for the caller to handle
+    }
+};

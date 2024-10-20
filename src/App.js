@@ -12,7 +12,7 @@ import { NewPassword } from './components/NewPassword';
 import { Cart } from './pages/Cart';
 import { ProductDetail } from './pages/ProductDetail';
 import { ShopVendors } from './components/ShopVendors';
-import { Products } from './pages/Products';
+import { Products } from './pages/ProductsListing';
 import { LayoutDefault } from './components/layouts/LayoutDefault';
 import { UploadProduct } from './components/ManagementProduct/UploadProduct';
 import { ManageProducts } from './pages/ManageProducts';
@@ -39,7 +39,7 @@ function App() {
         
           <Route path="shop">
                 <Route index element={<HomePage />} />
-                <Route path=":userId" element={<ShopVendors />} /> {/* Dynamic route for userId */}
+                <Route path=":userId" element={<ShopVendors />} /> 
             </Route>
           <Route path="manageproducts" element={<ManageProducts />} />
           <Route path="offer" element={<OfferPage />} />

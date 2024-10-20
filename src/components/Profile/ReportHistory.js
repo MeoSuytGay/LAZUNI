@@ -23,7 +23,7 @@ export const ReportHistory = () => {
   }, []);
 
   const getStateColor = (state) => {
-    return state === 'Đã giải quyết' ? 'bg-green-200 text-green-800' : 'bg-yellow-200 text-yellow-800';
+    return state === 'Completed' ? 'bg-green-200 text-green-800' : 'bg-yellow-200 text-yellow-800';
   };
 
   if (loading) return <div>Loading...</div>;
@@ -58,7 +58,7 @@ export const ReportHistory = () => {
                   {report.state}
                 </td>
                 <td className="px-6 py-4">
-                  {report.response_message}
+                  {report.responseMessage}
                 </td>
               </tr>
             ))}

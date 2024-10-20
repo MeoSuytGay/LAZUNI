@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ListProductByUserIdServices } from '../../services/ListProductByUserIdServices'; // Assuming you have this service for fetching products
 import { updateProductStatus } from '../../services/SensorProductServices';
 import { UpdateStatusService } from '../../services/UpdateStatusProductServices';
+import { DeleteProduct } from './DeleteProduct';
 
 export const PublicProduct = ({ userId, status }) => {
  
@@ -71,13 +72,16 @@ export const PublicProduct = ({ userId, status }) => {
       console.error('Error hiding product:', error); // Handle errors
     }
   };
-  
 
-  // Toggle the edit/delete menu
   const [menuOpen, setMenuOpen] = useState(null);
   const toggleMenu = (productId) => {
     setMenuOpen(menuOpen === productId ? null : productId); // Toggle menu open/close
   };
+  const handleProductDelete = (productId) => {
+    setDisplayedProducts((prevProducts) => prevProducts.filter(product => product.productId !== productId)); // Update displayed products
+    setProducts((prevProducts) => prevProducts.filter(product => product.productId !== productId)); // Update original products as well
+  };
+  
 
   return (
     <div className="mb-4 flex mx-auto w-full">
@@ -156,12 +160,7 @@ export const PublicProduct = ({ userId, status }) => {
                         >
                           Edit
                         </button>
-                        <button
-                          onClick={() => {}}
-                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                          Delete
-                        </button>
+                        <DeleteProduct productId={product.productId} onDelete={handleProductDelete} />
                       </div>
                     )}
                   </div>

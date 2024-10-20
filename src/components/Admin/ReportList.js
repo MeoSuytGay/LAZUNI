@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaReply } from 'react-icons/fa'; 
-import { AdminReportServices } from '../../services/AdminReportServices'; // Import your service
+import { AdminReportServices, AdminResponseServices } from '../../services/AdminReportServices'; // Import your service
 
 export const ReportList = () => {
   const [reports, setReports] = useState([]);
@@ -34,28 +34,35 @@ export const ReportList = () => {
   };
 
   // Handle submit response
-  const handleSubmitResponse = () => {
+  const handleSubmitResponse = async () => {
     if (selectedReport) {
-      // Update the report with response and set status to 'Đã giải quyết'
-      const updatedReport = {
-        ...selectedReport,
-        responseMessage: responseText, // Use responseMessage to match your object
-        state: 'Đã giải quyết',
-      };
+        // Update the report with response and set status to 'Đã giải quyết'
+        const updatedReport = {
+            ...selectedReport,
+            responseMessage: responseText, // Use responseMessage to match your object
+            state: 'Đã giải quyết',
+        };
 
-      // Update the report in the list
-      setReports((prevReports) =>
-        prevReports.map((report) =>
-          report.title === updatedReport.title ? updatedReport : report
-        )
-      );
+        try {
+            // Send the updated report details to the AdminResponseServices
+            await AdminResponseServices(updatedReport.reportId, responseText);
 
-      // Clear the response text and close popup
-      setResponseText('');
-      setIsPopupOpen(false);
-      setSelectedReport(null);
+            // Update the report in the list after a successful response
+            setReports((prevReports) =>
+                prevReports.map((report) =>
+                    report.reportId === updatedReport.reportId ? updatedReport : report
+                )
+            );
+
+            // Clear the response text and close popup
+            setResponseText('');
+            setIsPopupOpen(false);
+            setSelectedReport(null);
+        } catch (error) {
+            console.error('Error submitting response:', error);
+        }
     }
-  };
+};
 
   return (
     <div className="mx-auto ml-[20px] mt-[50px]">

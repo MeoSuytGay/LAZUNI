@@ -13,10 +13,11 @@ import { CiChat1 } from "react-icons/ci";
 import { CiShop } from "react-icons/ci";
 import { FeedBack } from "../components/Feedback";
 import { MdOutlineReport } from "react-icons/md";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import ConfirmPurchasePopup from '../components/Popup/Confirm';
 import ReportPopup from "../components/Popup/ReportProduct";
-import { Carousel } from "../components/Other/HomeBanner";
+import { ListProductByUserIdServices } from "../services/ListProductByUserIdServices";
+import { BuyProductServices } from "../services/PaymentByServices";
 export const ProductDetail = () => {
     const { productId } = useParams();
     const [productDetail, setProductDetail] = useState(null);
@@ -27,35 +28,17 @@ export const ProductDetail = () => {
     const [selectedProductIds, setSelectedProductIds] = useState([]); // Track multiple selected products
     const [isReportPopupOpen, setReportPopupOpen] = useState(false);
     const [isConfirmPopupOpen, setConfirmPopupOpen] = useState(false);
+    const [exchangeProducts, setExchangeProducts] = useState([]);
     const user = JSON.parse(localStorage.getItem("user"));
-    const navigate = useNavigate(); 
-    const data = [
-        {
-            id: 1,
-            img: "https://cdn.tgdd.vn/Products/Images/42/329149/iphone-16-pro-max-110924-060849.jpg",
-            name: "Product 1",
-            price: "123"
-        },
-        {
-            id: 2,
-            img: "https://cdn.tgdd.vn/Products/Images/42/329149/iphone-16-pro-max-110924-060849.jpg",
-            name: "Product 2",
-            price: "123"
-        },
-        {
-            id: 3,
-            img: "https://cdn.tgdd.vn/Products/Images/42/329149/iphone-16-pro-max-110924-060849.jpg ",
-            name: "Product 3",
-            price: "123"
-        }
-        // Add more products as needed
-    ];
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchProductDetails = async () => {
             try {
                 const data = await ProductDetailServices(productId);
                 setProductDetail(data);
+                const userProducts = await ListProductByUserIdServices(user.userId, "public"); // Fetch user's products
+                setExchangeProducts(userProducts);
             } catch (error) {
                 setError("Failed to load product details.");
                 console.error(error);
@@ -85,28 +68,69 @@ export const ProductDetail = () => {
         }
     };
 
-    const toggleExchangeList = () => {
-        setShowExchangeList(!showExchangeList);
-    };
+
 
     const toggleProductSelection = (id) => {
-        if (selectedProductIds.includes(id)) {
-            setSelectedProductIds(selectedProductIds.filter((itemId) => itemId !== id)); // Deselect
-        } else {
-            setSelectedProductIds([...selectedProductIds, id]); // Select
-        }
+        setSelectedProductIds((prevIds) =>
+            prevIds.includes(id) ? prevIds.filter((pid) => pid !== id) : [...prevIds, id]
+        );
     };
 
     const confirmExchange = () => {
-        const selectedProducts = data.filter((item) => selectedProductIds.includes(item.id));
+        // Filter selected products from the exchangeProducts array
+        const selectedProducts = exchangeProducts.filter((item) => selectedProductIds.includes(item.productId));
+    
         if (selectedProducts.length > 0) {
-            const selectedProductNames = selectedProducts.map((item) => item.name).join(", ");
-            alert(`You have selected: ${selectedProductNames}`);
+            // If there are selected products, pass them to handleTradeSubmit
+            handleTradeSubmit(selectedProducts);
         } else {
-            alert("No products selected for exchange.");
+            alert("No product selected for exchange.");
         }
+    
+        // Reset selection and hide the exchange list
         setSelectedProductIds([]);
         setShowExchangeList(false);
+    };
+    
+    const handleTradeSubmit = async (selectedProducts) => {
+        try {
+            const buyerId = user.userId; // Retrieve from user data
+    
+            // Create orders for each selected product
+            const orders = selectedProducts.map((product) => ({
+                type: "exchange", // Indicate that this is a trade/exchange order
+                sellerId: productDetail.user.userId, // Assuming the seller's user ID is part of the product details
+                buyerId: buyerId,
+                paymentBy: "COD",
+                orderDetails: [
+                    {
+                        productId: product.productId,
+                        quantity: product.quantity,
+                        productTradeId: product.productId, // Add trade ID if applicable
+                    }
+                ]
+            }));
+    
+            // Call the BuyProductServices function to place the orders
+            const result = await BuyProductServices(orders); // Ensure we await the result
+    
+            // Handle the result
+            if (result.error) {
+                console.error("Order submission failed:", result.error);
+            } else {
+                console.log("Order submitted successfully:", result);
+            }
+        } catch (error) {
+            // Handle any errors that occur during order submission
+            console.error("An error occurred while submitting the order:", error.message);
+        }
+    };
+    
+
+
+
+    const toggleExchangeList = () => {
+        setShowExchangeList(!showExchangeList);
     };
     const handleBuyNow = () => {
         setConfirmPopupOpen(true);
@@ -119,16 +143,17 @@ export const ProductDetail = () => {
             price: productDetail.price,
             subtotal: productDetail.price * quantity, // Calculate subtotal based on quantity
             quantity: quantity,
+            sellID: productDetail.user.userId
         };
-    
+
         // Redirect to the checkout page with the product details as an array
         navigate('/checkout', {
             state: {
-               products: [Products] // Pass the product as an array
+                products: [Products] // Pass the product as an array
             }
         });
     };
-    
+
     const handleAddToCart = () => {
         const productToAdd = {
             id: productDetail.productId,
@@ -136,15 +161,16 @@ export const ProductDetail = () => {
             img: productDetail.images[0].path,
             price: productDetail.price,
             quantity: quantity,
+            sellID: productDetail.user.userId
         };
-    
+
         const user = JSON.parse(localStorage.getItem('user'));
         const userId = user ? user.userId : 'guest'; // Use 'guest' if no user is logged in
-    
+
         const existingCart = JSON.parse(sessionStorage.getItem(`cart_${userId}`)) || [];
-    
+
         const productIndex = existingCart.findIndex(item => item.id === productDetail.id);
-    
+
         if (productIndex !== -1) {
             // If the product exists, update its quantity
             existingCart[productIndex].quantity += quantity;
@@ -152,14 +178,14 @@ export const ProductDetail = () => {
             // If the product doesn't exist, add it to the cart
             existingCart.push(productToAdd);
         }
-    
+
         // Save the updated cart to sessionStorage
         sessionStorage.setItem(`cart_${userId}`, JSON.stringify(existingCart));
-    
+
         // Show a success message
         alert("Added to cart successfully!");
     };
-    
+
 
 
     if (loading) {
@@ -207,11 +233,11 @@ export const ProductDetail = () => {
                             <div className="flex my-7">
                                 <div className="w-1/6 text-[#757575]">Số lượng</div>
                                 <div className="w-5/6 flex items-center ml-[10px] ">
-    <button onClick={decreaseQuantity} className="px-3 py-1 border hover:bg-gray-300 rounded-l">-</button>
-    <div className="text-[#757575] mx-2">{quantity}</div>
-    <button onClick={increaseQuantity} className="px-3 py-1 border hover:bg-gray-300 rounded-r">+</button>
-    <div className="text-[#757575] ml-2">{productDetail.quantity} sản phẩm có sẵn</div>
-</div>
+                                    <button onClick={decreaseQuantity} className="px-3 py-1 border hover:bg-gray-300 rounded-l">-</button>
+                                    <div className="text-[#757575] mx-2">{quantity}</div>
+                                    <button onClick={increaseQuantity} className="px-3 py-1 border hover:bg-gray-300 rounded-r">+</button>
+                                    <div className="text-[#757575] ml-2">{productDetail.quantity} sản phẩm có sẵn</div>
+                                </div>
 
                             </div>
                             <div className=" my-7">
@@ -253,15 +279,15 @@ export const ProductDetail = () => {
                                         {showExchangeList && (
                                             <div className="my-5 border rounded p-4">
                                                 <div className="font-semibold text-lg mb-2">Chọn sản phẩm để trao đổi:</div>
-                                                <div className="grid grid-cols-3 gap-4">
-                                                    {data.map((item) => (
+                                                <div className="grid grid-cols-2 *:gap-4">
+                                                    {exchangeProducts.map((item) => (
                                                         <div
-                                                            key={item.id}
-                                                            className={`border p-2 flex items-center cursor-pointer ${selectedProductIds.includes(item.id) ? 'bg-gray-200' : ''}`}
-                                                            onClick={() => toggleProductSelection(item.id)}
+                                                            key={item.productId}
+                                                            className={`border p-2 flex items-center cursor-pointer ${selectedProductIds.includes(item.productId) ? 'bg-gray-200' : ''}`}
+                                                            onClick={() => toggleProductSelection(item.productId)} // Toggle selection
                                                         >
-                                                            <img src={item.img} alt={item.name} className="w-12 h-12 object-cover " />
-                                                            <div className="ml-2">{item.name}-</div>
+                                                            <img src={item.images[0].path} alt={item.productName} className="w-12 h-12 object-cover" />
+                                                            <div className="mx-2 text-[10px]">{item.productName}</div>
                                                             <div className="text-red-500">đ{item.price}</div>
                                                         </div>
                                                     ))}
@@ -269,12 +295,14 @@ export const ProductDetail = () => {
                                                 <button onClick={confirmExchange} className="mt-4 border p-3 bg-primary text-white">Xác nhận</button>
                                             </div>
                                         )}
+
+
                                     </>
                                 ) : null}
                             </div>
 
 
-                      
+
                         </div>
                     </div>
                     <div className="my-10">
@@ -305,11 +333,11 @@ export const ProductDetail = () => {
                                     <div className="flex mt-2">
                                         <button className="flex items-center border p-2 mr-2">
                                             <CiChat1 className="mr-1" />
-                                            <div className="text-[12px]">Chat ngay</div>
+                                            <div className="text-[12px]">Chat Ngay</div>
                                         </button>
                                         <button className="flex items-center border p-2">
                                             <CiShop className="mr-1" />
-                                            <div className="text-[12px]">Xem shop</div>
+                                            <div className="text-[12px]">Follow Shop</div>
                                         </button>
                                     </div>
                                 </div>

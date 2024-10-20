@@ -2,14 +2,16 @@ import React, { useEffect, useState } from "react";
 import { AddressCheckOut } from "./AddressCheckOut";
 import { TiTick } from "react-icons/ti";
 import { useLocation } from "react-router-dom";
+import { BuyProductServices } from "../../services/PaymentByServices";
 
 export const CheckOut = () => {
-  const [shippingFee, setShippingFee] = useState(0);
+  const [walletBalance, setWalletBalance] = useState(0); // Renamed from shippingFee to walletBalance
   const [paymentMethod, setPaymentMethod] = useState("COD"); // Default payment method is Cash on Delivery
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("COD"); // Default selected payment method is Cash on Delivery
   const location = useLocation(); // Use this to get the state passed during navigation
   const [products, setProducts] = useState([]);
-
+  const [balanceError, setBalanceError] = useState(false); // State to track if balance is insufficient
+  const user = JSON.parse(localStorage.getItem('user'))
   useEffect(() => {
     if (location.state && location.state.products) {
       setProducts(location.state.products); // Set products from location state
@@ -18,9 +20,9 @@ export const CheckOut = () => {
       console.log("No products data passed to CheckOut");
     }
 
-    // Set default shipping fee for "COD"
+    // Set default wallet balance for "COD"
     if (paymentMethod === "COD") {
-      setShippingFee(0);
+      setWalletBalance(0);
     }
   }, [location, paymentMethod]);
 
@@ -32,19 +34,68 @@ export const CheckOut = () => {
 
   // Function to handle payment method change
   const handlePaymentMethod = (method) => {
-    setPaymentMethod(method);
-    setSelectedPaymentMethod(method); // Update the selected method with a checkmark
     if (method === "Lazuni") {
-      // Set shipping fee to user's balance if using Ví Lazuni
+      // Check if user balance is enough for Ví Lazuni
       const user = JSON.parse(localStorage.getItem("user"));
-      if (user && user.balance) {
-        setShippingFee(Number(user.balance));
+      if (user && user.balance >= totalProductPrice) {
+        setPaymentMethod(method);
+        setSelectedPaymentMethod(method); // Update the selected method with a checkmark
+        setBalanceError(false); // Reset error if balance is sufficient
+        setWalletBalance(Number(user.balance)); // Set wallet balance to user's balance if using Ví Lazuni
+      } else {
+        // If balance is insufficient, show error and don't change method
+        setBalanceError(true);
+        return;
       }
     } else if (method === "COD") {
-      // Set shipping fee to 0 if using Cash on Delivery
-      setShippingFee(0);
+      // Set wallet balance to 0 if using Cash on Delivery
+      setPaymentMethod(method);
+      setSelectedPaymentMethod(method);
+      setBalanceError(false); // Reset error for COD
+      setWalletBalance(0);
     }
   };
+  const handleOrderSubmit = async () => {
+    try {
+      const buyerId = user.userId; // Retrieve from user data
+      const groupedProducts = products.reduce((acc, product) => {
+        const sellerId = product.sellID;
+        if (!acc[sellerId]) {
+          acc[sellerId] = [];
+        }
+        acc[sellerId].push(product);
+        return acc;
+      }, {});
+  
+      // Create the orders based on grouped products
+      const orders = Object.keys(groupedProducts).map((sellerId) => ({
+        type: "buy",
+        sellerId: sellerId,
+        buyerId: buyerId,
+        paymentBy: paymentMethod,
+        orderDetails: groupedProducts[sellerId].map((product) => ({
+          productId: product.id,
+          quantity: product.quantity,
+          productTradeId: "", 
+        }))
+      }));
+  
+      // Call the BuyProductServices function to place the orders
+      const result = await BuyProductServices(orders); // Ensure we await the result
+  
+      // Handle the result
+      if (result.error) {
+        console.error("Order submission failed:", result.error);
+      } else {
+        console.log("Order submitted successfully:", result);
+      }
+    } catch (error) {
+      // Handle any errors that occur during order submission
+      console.error("An error occurred while submitting the order:", error.message);
+    }
+  };
+  
+  
 
   return (
     <>
@@ -143,6 +194,9 @@ export const CheckOut = () => {
                 </button>
               </div>
             </div>
+            {balanceError && (
+              <div className="text-red-500 mb-4">Số dư trong ví không đủ để thanh toán!</div>
+            )}
             <div className="flex flex-col mb-4">
               <div className="flex justify-between">
                 <span>Tổng tiền hàng:</span>
@@ -151,13 +205,13 @@ export const CheckOut = () => {
               <div className="flex justify-between">
                 <span>Tài khoản hiện có:</span>
                 <span>
-                  {paymentMethod === "Lazuni" ? shippingFee.toLocaleString("vi-VN", { style: "currency", currency: "VND" }) : "0"}
+                  {paymentMethod === "Lazuni" ? walletBalance.toLocaleString("vi-VN", { style: "currency", currency: "VND" }) : "0"}
                 </span>
               </div>
               <div className="flex justify-between font-bold">
                 <span>Tổng thanh toán:</span>
-                <span>
-                  {(shippingFee - totalProductPrice).toLocaleString("vi-VN", {
+                <span>  
+                  {((totalProductPrice - walletBalance) < 0 ? 0 : totalProductPrice).toLocaleString("vi-VN", {
                     style: "currency",
                     currency: "VND",
                   })}
@@ -169,6 +223,7 @@ export const CheckOut = () => {
                 Nhấn "Đặt hàng" đồng nghĩa bạn đã chấp hành chính sách của <strong>LAZUNI</strong>
               </div>
               <button
+               onClick={() => handleOrderSubmit("Lazuni")}
                 className="px-6 py-2 bg-orange-500 text-white rounded-lg"
               >
                 Đặt hàng
