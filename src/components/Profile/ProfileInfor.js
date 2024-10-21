@@ -8,6 +8,7 @@ import AvatarImage from '../../assets/images/avatar-default.jpg';
 import { ChangeInformationService } from '../../services/ChangeInformationServices';
 import { InputField } from '../Authenfication/InputField';
 import '../../assets/css/style.css';
+import { AddressServices } from '../../services/AddressServices';
 
 export const ProfileInfor = () => {
     const [firstName, setFirstName] = useState('');
@@ -26,34 +27,30 @@ export const ProfileInfor = () => {
     const [selectedDistrict, setSelectedDistrict] = useState('');
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            const parsedUser = JSON.parse(storedUser);
-            const nameParts = parsedUser.userName.split(' ');
-            setUser(parsedUser);
-            setImage(parsedUser.profilePicture || AvatarImage);
-            setFirstName(nameParts[0] || '');
-            setLastName(nameParts.slice(1).join(' ') || '');
-            setPhoneNum(parsedUser.phoneNum || '');
-            setEmail(parsedUser.email || '');
+        const fetchData = async () => {
+            const storedUser = localStorage.getItem('user');
+            if (storedUser) {
+                const parsedUser = JSON.parse(storedUser);
+                const nameParts = parsedUser.userName.split(' ');
+                setUser(parsedUser);
+                setImage(parsedUser.profilePicture || AvatarImage);
+                setFirstName(nameParts[0] || '');
+                setLastName(nameParts.slice(1).join(' ') || '');
+                setPhoneNum(parsedUser.phoneNum || '');
+                setEmail(parsedUser.email || '');
+                const addressParts = parsedUser.address ? parsedUser.address.split(',') : [];
+                setAddress(addressParts[0]?.trim() || '');
+                setSelectedCity(addressParts[2]?.trim() || '');
+                setSelectedDistrict(addressParts[1]?.trim() || '');
+            }
     
-            // Split address into specific address, district, and city
-            const addressParts = parsedUser.address ? parsedUser.address.split(',') : [];
-            setAddress(addressParts[0]?.trim() || ''); // Địa chỉ cụ thể
-            setSelectedCity(addressParts[2]?.trim() || ''); // Thành phố
-        
-            setSelectedDistrict(addressParts[1]?.trim() || ''); // Quận huyện
-        }
+            const cityData = await AddressServices(); // Fetch cities
+            setCities(cityData); // Save cities in state
+        };
     
-        // Fetch cities data on component mount
-        axios.get("https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json")
-            .then(response => {
-                setCities(response.data);
-            })
-            .catch(error => {
-                console.error("Error fetching cities:", error);
-            });
+        fetchData();
     }, []);
+    
     
 
     // Handle city selection
@@ -109,7 +106,7 @@ export const ProfileInfor = () => {
             console.error('Error updating profile:', error);
         }
     };
-  
+  console.log(districts )
     
 
     return (
@@ -217,20 +214,21 @@ export const ProfileInfor = () => {
                                 </select>
                             </div>
                             <div className='w-full md:w-1/2'>
-                                <label className='text-[16px] mb-2' htmlFor="district">Quận Huyện:</label>
-                                <select
-                                    id="district"
-                                    value={selectedDistrict}
-                                    onChange={handleDistrictChange}
-                                    className={`form-control w-full p-[16px] border border-primary rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${!isEditMode || !selectedCity ? 'bg-gray-200 cursor-not-allowed' : 'bg-white'}`}
-                                    disabled={!isEditMode || !selectedCity}
-                                >
-                                    <option value="">Chọn Quận/Huyện</option>
-                                    {districts.map((district) => (
-                                        <option key={district.Id} value={district.Name}>{district.Name}</option>
-                                    ))}
-                                </select>
-                            </div>
+    <label className='text-[16px] mb-2' htmlFor="district">Quận Huyện:</label>
+    <select
+        id="district"
+        value={selectedDistrict}
+        onChange={handleDistrictChange}
+        className={`form-control w-full p-[16px] border border-primary rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${!isEditMode || !selectedCity ? 'bg-gray-200 cursor-not-allowed' : 'bg-white'}`}
+        disabled={!isEditMode || !selectedCity}
+    >
+        <option value="">Chọn Quận/Huyện</option>
+        {districts.map((district) => (
+            <option key={district.Id} value={district.Name}>{district.Name}</option>
+        ))}
+    </select>
+</div>
+
                         </div>
                         <div className='flex my-[15px]'>
                             <div className=' w-full '>

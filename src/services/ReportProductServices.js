@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 export const ReportProductServices = async (reportData) => {
+  console.log(reportData)
   try {
     const response = await axios.post('http://localhost:8080/reports', reportData, {
       headers: {

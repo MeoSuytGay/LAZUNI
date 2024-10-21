@@ -47,7 +47,7 @@ export const Header = () => {
     const handleSearchSubmit = (e) => {
         e.preventDefault();
         if (keyWord) {
-            navigate(`/products?keyword=${keyWord}&page=1`);
+            navigate(`/products?q=${keyWord}&page=1`);
         } else {
             navigate(`/products?page=1`);
         }
