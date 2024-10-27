@@ -76,7 +76,7 @@ export const UploadProduct = () => {
 
         try {
             const response = await UploadProductServices(formData);
-            console.log("Product uploaded successfully:", response.data);
+            console.log("Product uploaded successfully:", response);
         } catch (error) {
             console.error("Error uploading product:", error);
         }
@@ -184,16 +184,16 @@ export const UploadProduct = () => {
                     <div className="my-5">
                         <div className="text-[18px] mb-2 text-gray-700">Transaction Type</div>
                         <div className="flex items-center">
-                            <label className="mr-[20px] text-[14px]">
-                                <input
-                                    type="radio"
-                                    name="transactionType"
-                                    value="sale"
-                                    checked={transactionType === 'sale'}
-                                    onChange={() => setTransactionType('sell')}
-                                />
-                                For Sale
-                            </label>
+                        <label className="mr-[20px] text-[14px]">
+    <input
+        type="radio"
+        name="transactionType"
+        value="sell" // Make sure the value here matches the state
+        checked={transactionType === 'sell'}
+        onChange={() => setTransactionType('sell')} // This should remain as 'sell'
+    />
+    For Sale
+</label>
                             <label className="mr-[20px] text-[14px]">
                                 <input
                                     type="radio"

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { FaToggleOn, FaToggleOff } from 'react-icons/fa';
-import axios from 'axios'; // Import axios to handle API calls
 import { AdminAccountServices } from '../../services/AdminAccountServices';
+import { AdminUpdateAccountServices } from '../../services/AdminUpdateAccountServices';
 
 export const AccountList = () => {
   const [accounts, setAccounts] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState(null);
+  const [selectedUserId, setSelectedUserId] = useState(null); // State for selected user ID
   const [searchQuery, setSearchQuery] = useState(''); // State to handle search input
 
   // Fetch account list from AdminAccountServices API when component mounts
@@ -24,33 +25,49 @@ export const AccountList = () => {
   }, []);
 
   // Handle toggling of account status
-  const handleToggleStatus = (username) => {
-    setSelectedAccount(username);
+  const handleToggleStatus = (account) => {
+    setSelectedAccount(account.userName);
+    setSelectedUserId(account.userId); // Set selected user ID
     setShowPopup(true);
   };
 
   const confirmToggleStatus = async () => {
+    if (!selectedUserId) return; // Ensure there's a selected user ID
+  
+    // Find the account to update
+    const accountToUpdate = accounts.find(account => account.userId === selectedUserId);
+    if (!accountToUpdate) return; // Check if the account exists
+  
+    // Determine the new status
+    const newStatus = accountToUpdate.state === 'active' ? 'inactive' : 'active'; 
+  
     try {
-      // Call the API to toggle the account status
-      await axios.put(`/api/admin/accounts/toggle-status`, { username: selectedAccount });
+      // Call the API to toggle the account status, passing userId and new status
+      await AdminUpdateAccountServices(selectedUserId, newStatus); // Update with userId and new status
+  
+      // Update local state
       setAccounts(prevAccounts =>
         prevAccounts.map(account =>
-          account.userName === selectedAccount
-            ? { ...account, state: account.state === 'active' ? 'inactive' : 'active' }
+          account.userId === selectedUserId
+            ? { ...account, state: newStatus } // Update account state in local state
             : account
         )
       );
     } catch (error) {
       console.error('Error updating account status:', error);
     }
-
+  
+    // Reset popup state
     setShowPopup(false);
     setSelectedAccount(null);
+    setSelectedUserId(null); // Clear the selected user ID
   };
+  
 
   const cancelToggleStatus = () => {
     setShowPopup(false);
     setSelectedAccount(null);
+    setSelectedUserId(null); // Clear the selected user ID
   };
 
   // Filter accounts based on search input
@@ -100,7 +117,7 @@ export const AccountList = () => {
                   {account.state}
                 </td>
                 <td className="px-4 py-4">
-                  <button onClick={() => handleToggleStatus(account.userName)}>
+                  <button onClick={() => handleToggleStatus(account)}>
                     {account.state === 'active' ? (
                       <FaToggleOn className="text-green-600" />
                     ) : (

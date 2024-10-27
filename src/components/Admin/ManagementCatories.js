@@ -1,18 +1,18 @@
 import { useState, useEffect } from "react";
 import { CategoriesServices } from "../../services/CategoriesServices";
-import { AddCategoryServices } from "../../services/AdminCategoryServices"; // Import AddCategoryServices
-import { DeleteCategoryServices } from "../../services/AdminCategoryServices"; // Import DeleteCategoryServices
+import { AddCategoryServices, DeleteCategoryServices, UpdateCategoryServices } from "../../services/AdminCategoryServices";
 
 export const ManagementCategories = () => {
     const [categories, setCategories] = useState([]);
-    const [newCategory, setNewCategory] = useState({ title: "", image: "" });
+    const [newCategory, setNewCategory] = useState({ title: "", image: "", description: "" });
     const [editingCategory, setEditingCategory] = useState(null);
+    const [editingTitle, setEditingTitle] = useState("");
     const [editingImage, setEditingImage] = useState("");
+    const [editingDescription, setEditingDescription] = useState("");
     const [imageFile, setImageFile] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const [errorMessage, setErrorMessage] = useState(null); // To handle errors
+    const [errorMessage, setErrorMessage] = useState(null);
 
-    // Fetch categories data on component mount
     useEffect(() => {
         const fetchCategories = async () => {
             const fetchedCategories = await CategoriesServices();
@@ -22,67 +22,92 @@ export const ManagementCategories = () => {
         fetchCategories();
     }, []);
 
-    // Handle adding a new category
     const handleAddCategory = async () => {
-        if (newCategory.title) {
+        if (newCategory.title && newCategory.description) {
             const formData = new FormData();
             formData.append("title", newCategory.title);
+            formData.append("description", newCategory.description);
             if (imageFile) {
                 formData.append("image", imageFile);
             }
 
             try {
-                // Call AddCategoryServices API
                 const addedCategory = await AddCategoryServices(formData);
-
                 if (addedCategory) {
-                    // Add new category to state
                     setCategories([...categories, addedCategory]);
-                    setNewCategory({ title: "", image: "" });
-                    setImageFile(null); // Reset image file
-                    setErrorMessage(null); // Clear any previous error message
+                    setNewCategory({ title: "", image: "", description: "" });
+                    setImageFile(null);
+                    setErrorMessage(null);
                 }
             } catch (error) {
-                setErrorMessage("Failed to add category. Please try again."); // Handle error
+                setErrorMessage("Failed to add category. Please try again.");
             }
+        } else {
+            setErrorMessage("Please fill out all fields.");
         }
     };
 
-    // Handle deleting a category
     const handleDeleteCategory = async (categoryId) => {
         try {
-            // Call DeleteCategoryServices API
             await DeleteCategoryServices(categoryId);
-            setCategories(categories.filter((cat) => cat.id !== categoryId)); // Remove category from state
+            setCategories(categories.filter((cat) => cat.id !== categoryId));
         } catch (error) {
-            setErrorMessage("Failed to delete category. Please try again."); // Handle error
+            setErrorMessage("Failed to delete category. Please try again.");
         }
     };
 
-    // Handle editing a category
     const handleEditCategory = (category) => {
-        setEditingCategory(category.title);
+        setEditingCategory(category.categoryId);
+        setEditingTitle(category.title);
         setEditingImage(category.image);
-        setShowModal(true); // Show modal when editing starts
+        setEditingDescription(category.description);
+        setShowModal(true);
     };
 
-    // Handle updating a category
-    const handleUpdateCategory = () => {
-        if (editingCategory) {
-            const updatedCategories = categories.map((cat) =>
-                cat.title === editingCategory
-                    ? { ...cat, title: editingCategory, image: imageFile ? URL.createObjectURL(imageFile) : editingImage }
-                    : cat
-            );
-            setCategories(updatedCategories);
-            setEditingCategory(null);
-            setEditingImage("");
-            setImageFile(null); // Reset image file after update
-            setShowModal(false); // Close modal after update
+    const handleUpdateCategory = async () => {
+        if (editingTitle && editingDescription) {
+            const formData = new FormData();
+            
+        
+            formData.append("title", editingTitle || editingCategory.title);
+            formData.append("description", editingDescription || editingCategory.description);
+            
+          
+            if (imageFile) {
+                formData.append("image", imageFile);
+            }
+    
+            try {
+                const updatedCategory = await UpdateCategoryServices(editingCategory, formData);
+                const updatedCategories = categories.map((cat) =>
+                    cat.categoryId === editingCategory
+                        ? { 
+                            ...cat, 
+                            title: editingTitle || cat.title, 
+                            description: editingDescription || cat.description, 
+                            image: imageFile ? URL.createObjectURL(imageFile) : cat.image 
+                        }
+                        : cat
+                );
+    
+                // Cập nhật danh sách categories sau khi thành công
+                setCategories(updatedCategories);
+                setShowModal(false);
+                setEditingCategory(null);
+                setEditingTitle("");
+                setEditingImage("");
+                setEditingDescription("");
+                setImageFile(null);
+                setErrorMessage(null);
+            } catch (error) {
+                setErrorMessage("Failed to update category. Please try again.");
+            }
+        } else {
+            setErrorMessage("Please fill out all fields.");
         }
     };
+    
 
-    // Handle file input change
     const handleFileChange = (e) => {
         setImageFile(e.target.files[0]);
     };
@@ -91,11 +116,10 @@ export const ManagementCategories = () => {
         <div className="p-6">
             <h2 className="text-2xl font-bold mb-4">Manage Categories</h2>
 
-            {/* Display category list */}
             <div className="grid grid-cols-7 gap-3">
                 {categories.map((category) => (
                     <div
-                        key={category.title}
+                        key={category.categoryId}
                         className="border rounded-lg p-2 flex flex-col items-center text-center transform transition-all duration-300 hover:scale-105"
                     >
                         <img
@@ -106,6 +130,9 @@ export const ManagementCategories = () => {
                         <h3 className="text-lg h-[50px] font-semibold mb-2 line-clamp-2 overflow-hidden text-ellipsis">
                             {category.title}
                         </h3>
+                        <p className="text-sm h-[40px] overflow-hidden text-ellipsis">
+                            {category.description}
+                        </p>
 
                         <div className="flex mt-2 space-x-2">
                             <button
@@ -115,7 +142,7 @@ export const ManagementCategories = () => {
                                 Edit
                             </button>
                             <button
-                                onClick={() => handleDeleteCategory(category.categoryId)} // Send categoryId
+                                onClick={() => handleDeleteCategory(category.categoryId)}
                                 className="bg-red-500 text-white px-4 py-2 text-sm rounded hover:bg-red-600 focus:ring-4 focus:ring-red-300 active:bg-red-700 transition-all"
                             >
                                 Delete
@@ -125,7 +152,6 @@ export const ManagementCategories = () => {
                 ))}
             </div>
 
-            {/* Add new category form */}
             <div className="flex items-center space-x-4 mt-6">
                 <div>
                     <h3 className="text-lg font-bold mb-2">Add New Category</h3>
@@ -135,6 +161,15 @@ export const ManagementCategories = () => {
                         value={newCategory.title}
                         onChange={(e) =>
                             setNewCategory({ ...newCategory, title: e.target.value })
+                        }
+                        className="border p-2 text-sm mr-2 rounded"
+                    />
+                    <input
+                        type="text"
+                        placeholder="Description"
+                        value={newCategory.description}
+                        onChange={(e) =>
+                            setNewCategory({ ...newCategory, description: e.target.value })
                         }
                         className="border p-2 text-sm mr-2 rounded"
                     />
@@ -154,7 +189,6 @@ export const ManagementCategories = () => {
                 </div>
             </div>
 
-            {/* Edit Category Modal */}
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white p-6 rounded-lg shadow-lg w-96">
@@ -163,8 +197,17 @@ export const ManagementCategories = () => {
                             <label className="block text-sm font-medium mb-2">Category Name</label>
                             <input
                                 type="text"
-                                value={editingCategory}
-                                onChange={(e) => setEditingCategory(e.target.value)}
+                                value={editingTitle}
+                                onChange={(e) => setEditingTitle(e.target.value)}
+                                className="border p-2 w-full rounded"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium mb-2">Description</label>
+                            <input
+                                type="text"
+                                value={editingDescription}
+                                onChange={(e) => setEditingDescription(e.target.value)}
                                 className="border p-2 w-full rounded"
                             />
                         </div>
@@ -172,7 +215,7 @@ export const ManagementCategories = () => {
                             <label className="block text-sm font-medium mb-2">Category Image</label>
                             <img
                                 src={editingImage}
-                                alt={editingCategory}
+                                alt={editingTitle}
                                 className="mb-2 w-24 h-24 object-cover rounded-full"
                             />
                             <input
@@ -196,6 +239,7 @@ export const ManagementCategories = () => {
                                 Update
                             </button>
                         </div>
+                        {errorMessage && <p className="text-red-500 mt-2">{errorMessage}</p>}
                     </div>
                 </div>
             )}

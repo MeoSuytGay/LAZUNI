@@ -2,80 +2,81 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { ListProductByUserIdServices } from '../../services/ListProductByUserIdServices';
+import { DeleteProduct } from './DeleteProduct';
 
 export const PendingProduct = ({ userId, status }) => {
-  console.log(userId, status);
-  const [products, setProducts] = useState([]); // Store all products
-  const [displayedProducts, setDisplayedProducts] = useState([]); // Store filtered and sorted products
-  const [searchTerm, setSearchTerm] = useState(''); // Search term
-  const [sortType, setSortType] = useState(''); // Sorting type: 'asc' or 'desc'
-  const [isLoading, setIsLoading] = useState(true); // Loading state
-  const [priceRange, setPriceRange] = useState([0, 10000000]); // Price range filter (default to a high max)
-  const [maxPrice, setMaxPrice] = useState(10000000); // Maximum price from the products
-  const [hiddenProducts, setHiddenProducts] = useState(new Set()); // Hidden products set
+  const [products, setProducts] = useState([]);
+  const [displayedProducts, setDisplayedProducts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortType, setSortType] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [priceRange, setPriceRange] = useState([0, 10000000]);
+  const [maxPrice, setMaxPrice] = useState(10000000);
+  const [hiddenProducts, setHiddenProducts] = useState(new Set());
+  const [menuOpen, setMenuOpen] = useState(null); // Track opened menu
 
-  // Fetch products from API using userId and status
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        setIsLoading(true); // Set loading true before fetching
-        const data = await ListProductByUserIdServices(userId, status); // Fetch products using userId and status
-
-        const maxProductPrice = Math.max(...data.map(product => product.price)); // Get max price from the fetched products
-        setProducts(data); // Set all products
-        setDisplayedProducts(data); // Initially show all products
-        setMaxPrice(maxProductPrice); // Set max price
-        setPriceRange([0, maxProductPrice]); // Initialize price range
-        setIsLoading(false); // Set loading false after fetching
+        setIsLoading(true);
+        const data = await ListProductByUserIdServices(userId, status);
+        const maxProductPrice = Math.max(...data.map(product => product.price));
+        setProducts(data);
+        setDisplayedProducts(data);
+        setMaxPrice(maxProductPrice);
+        setPriceRange([0, maxProductPrice]);
       } catch (error) {
         console.error('Error fetching products', error);
-        setIsLoading(false); // Handle error and stop loading
+      } finally {
+        setIsLoading(false);
       }
     };
-
     fetchProducts();
-  }, [userId, status]); // Fetch products when userId or status changes
+  }, [userId, status]);
 
-  // Handle search and price filtering
   useEffect(() => {
     let filteredProducts = products.filter(product =>
-      !hiddenProducts.has(product.productId) && // Exclude hidden products
-      product.productName.toLowerCase().includes(searchTerm.toLowerCase()) && // Search filter
-      product.price >= priceRange[0] && product.price <= priceRange[1] // Price range filter
+      !hiddenProducts.has(product.productId) &&
+      product.productName.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      product.price >= priceRange[0] && product.price <= priceRange[1]
     );
 
-    // Handle sorting
     if (sortType === 'asc') {
       filteredProducts.sort((a, b) => a.price - b.price);
     } else if (sortType === 'desc') {
       filteredProducts.sort((a, b) => b.price - a.price);
     }
 
-    setDisplayedProducts(filteredProducts); // Update displayed products
-  }, [searchTerm, sortType, priceRange, products, hiddenProducts]); // Re-filter when any dependency changes
+    setDisplayedProducts(filteredProducts);
+  }, [searchTerm, sortType, priceRange, products, hiddenProducts]);
 
-  // Format price in VND
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('vi-VN').format(price); // Format price for Vietnam currency
+    return new Intl.NumberFormat('vi-VN').format(price);
   };
 
-  // Hide product
   const handleHideClick = (productId) => {
-    setHiddenProducts((prev) => new Set(prev).add(productId)); // Add product ID to hidden set
+    setHiddenProducts((prev) => new Set(prev).add(productId));
   };
 
-  // Toggle the edit/delete menu
-  const [menuOpen, setMenuOpen] = useState(null);
+  const handleDeleteClick = async (productId) => {
+    // Here, you would call your delete service and then update state
+    try {
+      await axios.delete(`/api/products/${productId}`); // Assuming a DELETE API
+      setProducts((prev) => prev.filter(product => product.productId !== productId));
+      setDisplayedProducts((prev) => prev.filter(product => product.productId !== productId));
+    } catch (error) {
+      console.error('Error deleting product', error);
+    }
+  };
+
   const toggleMenu = (productId) => {
-    setMenuOpen(menuOpen === productId ? null : productId); // Toggle menu open/close
+    setMenuOpen(menuOpen === productId ? null : productId);
   };
 
   return (
     <div className="mb-4 flex mx-auto w-full">
       <div className="w-full">
-        {/* Search and Sort Header */}
         <div className="flex justify-between items-center mb-4">
-          {/* Search Input */}
           <div className="flex items-center space-x-2">
             <input
               type="text"
@@ -85,8 +86,6 @@ export const PendingProduct = ({ userId, status }) => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-
-          {/* Sort Dropdown */}
           <select
             className="border p-2 rounded-lg"
             value={sortType}
@@ -98,7 +97,6 @@ export const PendingProduct = ({ userId, status }) => {
           </select>
         </div>
 
-        {/* Products List */}
         {isLoading ? (
           <div className="flex justify-center items-center h-64">
             <span>Loading products...</span>
@@ -108,10 +106,7 @@ export const PendingProduct = ({ userId, status }) => {
             {displayedProducts.length > 0 ? (
               displayedProducts.map((product) => (
                 <div key={product.productId} className="border border-gray-100 p-[10px] flex items-center relative">
-                  {/* Product Link */}
-                  <div
-                    className="flex items-center justify-start w-full transition-transform transform hover:scale-105"
-                  >
+                  <div className="flex items-center justify-start w-full transition-transform transform hover:scale-105">
                     <div className="flex-shrink-0 w-[150px]">
                       <img
                         src={product.images[0]?.path || '/default-image.png'}
@@ -130,7 +125,6 @@ export const PendingProduct = ({ userId, status }) => {
                     </div>
                   </div>
 
-                  {/* Edit/Delete Menu */}
                   <div className="absolute right-0 top-0 mt-10 mr-3">
                     <button
                       className="font-semibold focus:outline-none text-[20px]"
@@ -146,19 +140,13 @@ export const PendingProduct = ({ userId, status }) => {
                         >
                           Edit
                         </button>
-                        <button
-                          onClick={() => {}}
-                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                          Delete
-                        </button>
+                        <DeleteProduct productId={product.productId} onDelete={handleDeleteClick} />
                       </div>
                     )}
                   </div>
 
-                  {/* Pending Approval Text */}
                   <div className="block w-2/5 px-4 py-2 text-sm text-gray-700 mt-10 border text-center">
-                    <span className="text-gray-500">Chờ duyệt</span>
+                    <span className="text-gray-500">{product.status}</span>
                   </div>
                 </div>
               ))

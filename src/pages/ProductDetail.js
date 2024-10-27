@@ -11,7 +11,7 @@ import { FaHandHolding } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { CiChat1 } from "react-icons/ci";
 import { CiShop } from "react-icons/ci";
-import { FeedBack } from "../components/Feedback";
+import { FeedBack } from "../components/Feedback/Feedback";
 import { MdOutlineReport } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import ConfirmPurchasePopup from '../components/Popup/Confirm';
@@ -37,7 +37,7 @@ export const ProductDetail = () => {
             try {
                 const data = await ProductDetailServices(productId);
                 setProductDetail(data);
-                const userProducts = await ListProductByUserIdServices(user.userId, "public"); // Fetch user's products
+                const userProducts = await ListProductByUserIdServices(user.userId, "public"); 
                 setExchangeProducts(userProducts);
             } catch (error) {
                 setError("Failed to load product details.");
@@ -104,8 +104,8 @@ export const ProductDetail = () => {
                 paymentBy: "COD",
                 orderDetails: [
                     {
-                        productId: product.productId,
-                        quantity: product.quantity,
+                        productId: productDetail.productId,
+                        quantity: 1,
                         productTradeId: product.productId, // Add trade ID if applicable
                     }
                 ]
@@ -314,7 +314,7 @@ export const ProductDetail = () => {
                         <div className="w-2/3">
                             <div className="text-[26px]  p-3 font-semibold bg-[#FAFAFA]">Đánh giá</div>
                             <div className="my-[25px]">
-                                <FeedBack reviews={productDetail.feedBacks} />
+                                <FeedBack reviews={productDetail.feedBacks} productImg={productDetail.images[0].path} productName={productDetail.productName} />
 
                             </div>
 

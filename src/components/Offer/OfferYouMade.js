@@ -6,6 +6,7 @@ import { OfferPending } from "./OfferPending";
 import { MdOutlinePendingActions } from "react-icons/md";
 import { FaExclamationTriangle, FaSpinner, FaCheckCircle } from "react-icons/fa";
 import { CiDeliveryTruck } from "react-icons/ci";
+
 export const OfferYouMade = () => {
   const [selectedStatus, setSelectedStatus] = useState("pending");
 
@@ -29,7 +30,7 @@ export const OfferYouMade = () => {
           } rounded-3xl`}
           onClick={() => handleStatusClick("pending")}
         >
-          <MdOutlinePendingActions className="mr-2" />
+          <MdOutlinePendingActions className="mr-2"  />
           Pending
         </button>
 
@@ -42,7 +43,7 @@ export const OfferYouMade = () => {
           } rounded-3xl`}
           onClick={() => handleStatusClick("failed")}
         >
-          <FaExclamationTriangle className="mr-2" />
+          <FaExclamationTriangle className="mr-2"  />
           Failed
         </button>
 
@@ -55,7 +56,7 @@ export const OfferYouMade = () => {
           } rounded-3xl`}
           onClick={() => handleStatusClick("inprogress")}
         >
-           <CiDeliveryTruck className="mr-2" />
+          <CiDeliveryTruck className="mr-2"  />
           In Progress
         </button>
 
@@ -68,17 +69,17 @@ export const OfferYouMade = () => {
           } rounded-3xl`}
           onClick={() => handleStatusClick("completed")}
         >
-          <FaCheckCircle className="mr-2" />
+          <FaCheckCircle className="mr-2"/>
           Completed
         </button>
       </div>
 
-      {/* Render the selected status component */}
+      {/* Render the selected status component with the status prop as 'make' */}
       <div>
-        {selectedStatus === "pending" && <OfferPending />}
-        {selectedStatus === "failed" && <OfferFailed />}
-        {selectedStatus === "inprogress" && <OfferInProgress />}
-        {selectedStatus === "completed" && <OfferCompleted />}
+        {selectedStatus === "pending" && <OfferPending status="make" />}
+        {selectedStatus === "failed" && <OfferFailed status="make" />}
+        {selectedStatus === "inprogress" && <OfferInProgress status="make" />}
+        {selectedStatus === "completed" && <OfferCompleted status="make" />}
       </div>
     </div>
   );

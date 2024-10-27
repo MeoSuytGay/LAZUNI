@@ -87,7 +87,7 @@ export const SensorProduct = () => {
                                     <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                                         {product.productName}
                                     </td>
-                                    <td className="px-6 py-4">{product.category.title}</td>
+                                    <td className="px-6 py-4">{product.productName}</td>
                                     <td className="px-6 py-4">{product.price} VNĐ</td>
                                     <td className="px-6 py-4">{product.description}</td>
                                     <td className="px-6 py-4">{product.status}</td>

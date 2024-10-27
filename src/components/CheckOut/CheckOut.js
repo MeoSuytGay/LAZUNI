@@ -68,17 +68,23 @@ export const CheckOut = () => {
       }, {});
   
       // Create the orders based on grouped products
-      const orders = Object.keys(groupedProducts).map((sellerId) => ({
-        type: "buy",
-        sellerId: sellerId,
-        buyerId: buyerId,
-        paymentBy: paymentMethod,
-        orderDetails: groupedProducts[sellerId].map((product) => ({
-          productId: product.id,
-          quantity: product.quantity,
-          productTradeId: "", 
-        }))
-      }));
+      const orders = Object.keys(groupedProducts).map((sellerId) => {
+        const sellerProducts = groupedProducts[sellerId];
+        const total = sellerProducts.reduce((acc, product) => acc + product.subtotal, 0); // Calculate total for each seller
+  
+        return {
+          type: "buy",
+          sellerId: sellerId,
+          buyerId: buyerId,
+          paymentBy: paymentMethod,
+          orderDetails: sellerProducts.map((product) => ({
+            productId: product.id,
+            quantity: product.quantity,
+            productTradeId: "", 
+          })),
+          total: total // Include total for each order
+        };
+      });
   
       // Call the BuyProductServices function to place the orders
       const result = await BuyProductServices(orders); // Ensure we await the result
@@ -94,6 +100,7 @@ export const CheckOut = () => {
       console.error("An error occurred while submitting the order:", error.message);
     }
   };
+  
   
   
 

@@ -19,7 +19,7 @@ export const updateProductStatus = async (productId, status) => {
       };
       console.log(requestData)
   
-      const response = await axios.put('http://localhost:8080/admin', requestData);
+      const response = await axios.put('http://localhost:8080/admin/product', requestData);
       return response.data;  // Return the updated product data or success message
     } catch (error) {
       console.error('Error updating product status:', error);

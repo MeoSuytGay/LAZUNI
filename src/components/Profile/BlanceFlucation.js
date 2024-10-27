@@ -45,7 +45,7 @@ export const BlanceFlucation = () => {
                 <td className="px-4 py-4">{fluctuation.amount}</td>
                 <td className="px-4 py-4">{fluctuation.transactionType}</td>
                 <td className="px-4 py-4">{fluctuation.balance}</td>
-                <td className={`px-4 py-4 ${fluctuation.state === "Giao dịch thành công" ? 'text-green-600 ' : 'text-red-600'}`}>
+                <td className={`px-4 py-4 ${fluctuation.state === "Giao dịch không thành công" ? 'text-red-600 ' : 'text-green-600'}`}>
                   {fluctuation.state}
                 </td>
                 <td className="px-4 py-4">{fluctuation.date}</td>

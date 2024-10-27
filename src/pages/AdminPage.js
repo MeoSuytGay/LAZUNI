@@ -45,7 +45,7 @@ export const AdminPage = () => {
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
-      <div className="w-1/5 bg-gray-800 text-white h-[1000px] flex flex-col justify-between">
+      <div className="w-1/5 bg-gray-800 text-white h-[1200px] flex flex-col justify-between">
         {/* Danh sách các chức năng */}
         <ul className="flex flex-col">
           <li

@@ -19,8 +19,8 @@ export const Categories = () => {
             <div className="font-semibold text-[20px] my-[20px] ml-[20px]">Danh mục</div>
             <div className="grid grid-cols-8 gap-1"> {/* Adjusted grid settings here */}
                 {categories.map(item => (
-                    <div key={item.category_id} className="border border-gray-100">
-                        <Link to={`/products?category=${item.title}`} className="flex flex-col items-center justify-center p-4 transition-transform transform hover:scale-105">
+                    <div key={item.categoryId} className="border border-gray-100">
+                        <Link to={`/products?category=${item.categoryId}`} className="flex flex-col items-center justify-center p-4 transition-transform transform hover:scale-105">
                             <div>
                                 <img src={item.image} alt={item.title} className="w-[84px] h-[84px]" />
                             </div>

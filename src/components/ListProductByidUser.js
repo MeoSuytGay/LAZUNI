@@ -14,7 +14,8 @@ export const ListProductByidUse = ({ userId, status }) => {
     const fetchProducts = async () => {
       try {
         setIsLoading(true); // Set loading true before API call
-        const data = await ListProductByUserIdServices(userId, status);
+        const data = await ListProductByUserIdServices(userId, status)
+        console.log(data);
         setProducts(data); // Set the fetched products
         setDisplayedProducts(data); // Initially show all products
       } catch (error) {
@@ -105,6 +106,7 @@ export const ListProductByidUse = ({ userId, status }) => {
                       <div className="w-9/12 text-ellipsis overflow-hidden line-clamp-2">
                         {product.productName}
                       </div>
+                    
                     </div>
                     <div className="text-red-500 font-semibold w-full text-left flex ml-[20px]">
                       <span className="font-[2px] mr-[2px]">đ </span>{formatPrice(product.price)}

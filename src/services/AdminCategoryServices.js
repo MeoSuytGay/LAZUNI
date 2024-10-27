@@ -26,3 +26,18 @@ export const DeleteCategoryServices = async (categoryId) => {
         throw error; // Re-throw error for the caller to handle
     }
 };
+
+    export const UpdateCategoryServices = async (categoryId, formData) => {
+        console.log(categoryId)
+        try {
+            const response = await axios.put(`http://localhost:8080/categories/${categoryId}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data' // Specify multipart for file uploads
+                }
+            });
+            return response.data; // Return the updated category data
+        } catch (error) {
+            console.error("Error updating category:", error); // Updated log message
+            throw error; // Re-throw error for the caller to handle
+        }
+    };

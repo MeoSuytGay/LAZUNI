@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { ListProductByUserIdServices } from '../../services/ListProductByUserIdServices';
 import { UpdateStatusService } from '../../services/UpdateStatusProductServices';
+import { DeleteProduct } from './DeleteProduct';
 
 export const InventoryProduct = ({ userId, status }) => {
   console.log(userId, status);
@@ -78,6 +79,11 @@ export const InventoryProduct = ({ userId, status }) => {
     setMenuOpen(menuOpen === productId ? null : productId); // Toggle menu open/close
   };
 
+  const handleProductDelete = (productId) => {
+    setDisplayedProducts((prevProducts) => prevProducts.filter(product => product.productId !== productId)); // Update displayed products
+    setProducts((prevProducts) => prevProducts.filter(product => product.productId !== productId)); // Update original products as well
+  };
+
   return (
     <div className="mb-4 flex mx-auto w-full">
       <div className="w-full">
@@ -116,28 +122,36 @@ export const InventoryProduct = ({ userId, status }) => {
             {displayedProducts.length > 0 ? (
               displayedProducts.map((product) => (
                 <div key={product.productId} className="border border-gray-100 p-[10px] flex items-center relative">
-                  {/* Product Link */}
-                  <Link
-                    to={`/products/${product.productId}`}
-                    className="flex items-center justify-start w-full transition-transform transform hover:scale-105"
-                  >
-                    <div className="flex-shrink-0 w-[150px]">
-                      <img
-                        src={product.images[0]?.path || '/default-image.png'}
-                        alt={product.productName}
-                        className="w-full h-[150px] object-cover"
-                        onError={(e) => { e.target.src = '/default-image.png'; }}
-                      />
+                <Link
+                  to={`/products/${product.productId}`}
+                  className="flex items-center justify-start w-full transition-transform transform hover:scale-105"
+                >
+                  <div className="flex-shrink-0 w-[150px]">
+                    <img
+                      src={product.images[0]?.path || '/default-image.png'}
+                      alt={product.productName}
+                      className="w-full h-[150px] object-cover"
+                      onError={(e) => { e.target.src = '/default-image.png'; }}
+                    />
+                  </div>
+                  <div className="ml-4 flex-grow w-1/3">
+                    <div className="text-ellipsis overflow-hidden line-clamp-2 w-[300px]">
+                      {/* Giới hạn số dòng cho tên sản phẩm */}
+                      <h2 className="font-semibold text-[18px] whitespace-nowrap overflow-hidden overflow-ellipsis">
+                        {product.productName}
+                      </h2>
                     </div>
-                    <div className="ml-4 flex-grow">
-                      <div className="w-9/12 text-ellipsis overflow-hidden line-clamp-2">
-                        <h2 className="font-semibold">{product.productName}</h2>
-                        <div className="text-red-500 font-semibold mt-2">
-                          <span className="font-[2px] mr-[2px]">đ </span>{formatPrice(product.price)}
-                        </div>
-                      </div>
+                    {/* Hiển thị số lượng và giá tiền */}
+                    <div className="flex flex-col items-center mt-4">
+                      <span className="text-gray-500 font-semibold text-left ">
+                        Số lượng: {product.quantity}
+                      </span>
+                      <span className="text-red-500 font-semibold">
+                        <span className="mr-1">đ</span>{formatPrice(product.price)}
+                      </span>
                     </div>
-                  </Link>
+                  </div>
+                </Link>
 
                   {/* Edit/Delete Menu */}
                   <div className="absolute right-0 top-0 mt-10 mr-3">
@@ -155,12 +169,7 @@ export const InventoryProduct = ({ userId, status }) => {
                         >
                           Edit
                         </button>
-                        <button
-                          onClick={() => {}}
-                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                          Delete
-                        </button>
+                        <DeleteProduct productId={product.productId} onDelete={handleProductDelete} />
                       </div>
                     )}
                   </div>

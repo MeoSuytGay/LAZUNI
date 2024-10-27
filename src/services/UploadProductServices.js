@@ -13,9 +13,7 @@ export const UploadProductServices = async (formData) => {
         // Append userId to the formData
         formData.append("userId", userId);
 
-        // Log the images in formData
-
-        // Send a POST request to your backend API
+     
         const response = await axios.post('http://localhost:8080/products', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
@@ -24,7 +22,7 @@ export const UploadProductServices = async (formData) => {
 
         // Handle success response
         console.log('Product uploaded successfully:', response.data);
-        return response.data;
+        return response;
     } catch (error) {
         // Handle error response
         console.error('Error uploading product:', error);

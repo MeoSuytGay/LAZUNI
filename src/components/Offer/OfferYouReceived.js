@@ -17,7 +17,7 @@ export const OfferYouReceived=()=>{
 
   return (
     <div className="container mx-auto mt-[20px]">
-      <h2 className="font-semibold text-[24px]">Offer You Made</h2>
+      <h2 className="font-semibold text-[24px]">Offer You Received</h2>
 
       {/* Status buttons */}
       <div className="my-[50px] mt-[30px] flex justify-start space-x-4">
@@ -30,7 +30,7 @@ export const OfferYouReceived=()=>{
           } rounded-3xl`}
           onClick={() => handleStatusClick("pending")}
         >
-          <MdOutlinePendingActions className="mr-2" />
+          <MdOutlinePendingActions className="mr-2" status="recive"/>
           Pending
         </button>
 
@@ -43,7 +43,7 @@ export const OfferYouReceived=()=>{
           } rounded-3xl`}
           onClick={() => handleStatusClick("failed")}
         >
-          <FaExclamationTriangle className="mr-2" />
+          <FaExclamationTriangle className="mr-2" status="recive"/>
           Failed
         </button>
 
@@ -56,7 +56,7 @@ export const OfferYouReceived=()=>{
           } rounded-3xl`}
           onClick={() => handleStatusClick("inprogress")}
         >
-          <CiDeliveryTruck className="mr-2" />
+          <CiDeliveryTruck className="mr-2" status="recive"/>
           In Progress
         </button>
 
@@ -69,17 +69,17 @@ export const OfferYouReceived=()=>{
           } rounded-3xl`}
           onClick={() => handleStatusClick("completed")}
         >
-          <FaCheckCircle className="mr-2" />
+          <FaCheckCircle className="mr-2" status="recive"/>
           Completed
         </button>
       </div>
 
       {/* Render the selected status component */}
       <div>
-        {selectedStatus === "pending" && <OfferPending />}
-        {selectedStatus === "failed" && <OfferFailed />}
-        {selectedStatus === "inprogress" && <OfferInProgress />}
-        {selectedStatus === "completed" && <OfferCompleted />}
+        {selectedStatus === "pending" && <OfferPending status="receive"/>}
+        {selectedStatus === "failed" && <OfferFailed  status="receive"/>}
+        {selectedStatus === "inprogress" && <OfferInProgress  status="receive"/>}
+        {selectedStatus === "completed" && <OfferCompleted  status="receive"/>}
       </div>
     </div>
   );

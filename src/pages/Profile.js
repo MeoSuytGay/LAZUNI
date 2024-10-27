@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Sider } from '../components/sider/Sider';
 import { ChangePassword } from '../components/Profile/ChangePassword';
 import { ProfileInfor } from '../components/Profile/ProfileInfor';
-import { UpradeAccount } from '../components/Profile/UpradeAccount';
+import { UpgradeAccount, UpradeAccount } from '../components/Profile/UpradeAccount';
 import { ReportHistory } from '../components/Profile/ReportHistory';
 import { useSearchParams } from 'react-router-dom';
 import { BlanceFlucation } from '../components/Profile/BlanceFlucation';
@@ -64,7 +64,7 @@ export const Profile = () => {
           <main className="mb-[120px]">
             {activeSection === 'profileInfo' && <ProfileInfor />}
             {activeSection === 'changePassword' && <ChangePassword />} 
-            {activeSection === 'upgradeAccount' && <UpradeAccount />} 
+            {activeSection === 'upgradeAccount' && <UpgradeAccount />} 
             {activeSection === 'reportHistory' && <ReportHistory />}
             {activeSection === 'blanceFlucation' && <BlanceFlucation />}
             {activeSection === 'viewStatic' && <ViewSatic />} 
