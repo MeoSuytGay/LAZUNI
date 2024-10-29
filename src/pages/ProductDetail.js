@@ -333,11 +333,11 @@ export const ProductDetail = () => {
                                     <div className="flex mt-2">
                                         <button className="flex items-center border p-2 mr-2">
                                             <CiChat1 className="mr-1" />
-                                            <div className="text-[12px]">Chat Ngay</div>
+                                            <div className="text-[12px]">Nhắn tin ngay</div>
                                         </button>
                                         <button className="flex items-center border p-2">
                                             <CiShop className="mr-1" />
-                                            <div className="text-[12px]">Follow Shop</div>
+                                            <div className="text-[12px]">Xem shop</div>
                                         </button>
                                     </div>
                                 </div>

@@ -1,94 +1,97 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { ListProductByUserIdServices } from '../../services/ListProductByUserIdServices'; // Assuming you have this service for fetching products
-import { updateProductStatus } from '../../services/SensorProductServices';
+import { Link, useNavigate } from 'react-router-dom';
+import { ListProductByUserIdServices } from '../../services/ListProductByUserIdServices';
 import { UpdateStatusService } from '../../services/UpdateStatusProductServices';
 import { DeleteProduct } from './DeleteProduct';
+import { EditProduct } from './EditProduct';
 
 export const PublicProduct = ({ userId, status }) => {
- 
-  const [products, setProducts] = useState([]); // Store all products
-  const [displayedProducts, setDisplayedProducts] = useState([]); // Store filtered and sorted products
-  const [searchTerm, setSearchTerm] = useState(''); // Search term
-  const [sortType, setSortType] = useState(''); // Sorting type: 'asc' or 'desc'
-  const [isLoading, setIsLoading] = useState(true); // Loading state
-  const [priceRange, setPriceRange] = useState([0, 10000000]); // Price range filter (default to a high max)
-  const [maxPrice, setMaxPrice] = useState(10000000); // Maximum price from the products
-  const [hiddenProducts, setHiddenProducts] = useState(new Set()); // Hidden products set
+  const [products, setProducts] = useState([]);
+  const [displayedProducts, setDisplayedProducts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortType, setSortType] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [priceRange, setPriceRange] = useState([0, 10000000]);
+  const [maxPrice, setMaxPrice] = useState(10000000);
+  const [hiddenProducts, setHiddenProducts] = useState(new Set());
+  const [showModal, setShowModal] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(null); // Track open menu
 
-  // Fetch products from API using userId and status
+  const navigate = useNavigate();
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        setIsLoading(true); // Set loading true before fetching
-        const data = await ListProductByUserIdServices(userId, status); // Fetch products using userId and status
-
-        const maxProductPrice = Math.max(...data.map(product => product.price)); // Get max price from the fetched products
-        setProducts(data); // Set all products
-        setDisplayedProducts(data); // Initially show all products
-        setMaxPrice(maxProductPrice); // Set max price
-        setPriceRange([0, maxProductPrice]); // Initialize price range
-        setIsLoading(false); // Set loading false after fetching
+        setIsLoading(true);
+        const data = await ListProductByUserIdServices(userId, status);
+        const maxProductPrice = Math.max(...data.map(product => product.price));
+        setProducts(data);
+        setDisplayedProducts(data);
+        setMaxPrice(maxProductPrice);
+        setPriceRange([0, maxProductPrice]);
+        setIsLoading(false);
       } catch (error) {
         console.error('Error fetching products', error);
-        setIsLoading(false); // Handle error and stop loading
+        setIsLoading(false);
       }
     };
 
     fetchProducts();
-  }, [userId, status]); // Fetch products when userId or status changes
+  }, [userId, status]);
 
-  // Handle search and price filtering
   useEffect(() => {
     let filteredProducts = products.filter(product =>
-      !hiddenProducts.has(product.productId) && // Exclude hidden products
-      product.productName.toLowerCase().includes(searchTerm.toLowerCase()) && // Search filter
-      product.price >= priceRange[0] && product.price <= priceRange[1] // Price range filter
+      !hiddenProducts.has(product.productId) &&
+      product.productName.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      product.price >= priceRange[0] && product.price <= priceRange[1]
     );
 
-    // Handle sorting
     if (sortType === 'asc') {
       filteredProducts.sort((a, b) => a.price - b.price);
     } else if (sortType === 'desc') {
       filteredProducts.sort((a, b) => b.price - a.price);
     }
 
-    setDisplayedProducts(filteredProducts); // Update displayed products
-  }, [searchTerm, sortType, priceRange, products, hiddenProducts]); // Re-filter when any dependency changes
+    setDisplayedProducts(filteredProducts);
+  }, [searchTerm, sortType, priceRange, products, hiddenProducts]);
 
-  // Format price in VND
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('vi-VN').format(price); // Format price for Vietnam currency
+    return new Intl.NumberFormat('vi-VN').format(price);
   };
 
-  // Hide product
   const handleHideClick = async (productId) => {
-    console.log(productId)
     try {
-      const response = await UpdateStatusService(productId, 'hide'); // Update the product status to 'hidden'
-      console.log(response); // Check the response
-      setHiddenProducts((prev) => new Set(prev).add(productId)); // Add product ID to hidden set locally
+      await UpdateStatusService(productId, 'hide');
+      setHiddenProducts((prev) => new Set(prev).add(productId));
     } catch (error) {
-      console.error('Error hiding product:', error); // Handle errors
+      console.error('Error hiding product:', error);
     }
   };
 
-  const [menuOpen, setMenuOpen] = useState(null);
-  const toggleMenu = (productId) => {
-    setMenuOpen(menuOpen === productId ? null : productId); // Toggle menu open/close
-  };
   const handleProductDelete = (productId) => {
-    setDisplayedProducts((prevProducts) => prevProducts.filter(product => product.productId !== productId)); // Update displayed products
-    setProducts((prevProducts) => prevProducts.filter(product => product.productId !== productId)); // Update original products as well
+    setDisplayedProducts((prevProducts) => prevProducts.filter(product => product.productId !== productId));
+    setProducts((prevProducts) => prevProducts.filter(product => product.productId !== productId));
   };
-  
+
+  const toggleMenu = (productId) => {
+    setMenuOpen((prev) => (prev === productId ? null : productId)); // Toggle the specific menu
+  };
+
+  const openModal = (productId) => {
+    setSelectedProductId(productId);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedProductId(null);
+  };
 
   return (
     <div className="mb-4 flex mx-auto w-full">
       <div className="w-full">
-        {/* Search and Sort Header */}
         <div className="flex justify-between items-center mb-4">
-          {/* Search Input */}
           <div className="flex items-center space-x-2">
             <input
               type="text"
@@ -99,7 +102,6 @@ export const PublicProduct = ({ userId, status }) => {
             />
           </div>
 
-          {/* Sort Dropdown */}
           <select
             className="border p-2 rounded-lg"
             value={sortType}
@@ -111,7 +113,6 @@ export const PublicProduct = ({ userId, status }) => {
           </select>
         </div>
 
-        {/* Products List */}
         {isLoading ? (
           <div className="flex justify-center items-center h-64">
             <span>Loading products...</span>
@@ -121,39 +122,34 @@ export const PublicProduct = ({ userId, status }) => {
             {displayedProducts.length > 0 ? (
               displayedProducts.map((product) => (
                 <div key={product.productId} className="border border-gray-100 p-[10px] flex items-center relative">
-                <Link
-                  to={`/products/${product.productId}`}
-                  className="flex items-center justify-start w-full transition-transform transform hover:scale-105"
-                >
-                  <div className="flex-shrink-0 w-[150px]">
-                    <img
-                      src={product.images[0]?.path || '/default-image.png'}
-                      alt={product.productName}
-                      className="w-full h-[150px] object-cover"
-                      onError={(e) => { e.target.src = '/default-image.png'; }}
-                    />
-                  </div>
-                  <div className="ml-4 flex-grow w-1/3">
-                    <div className="text-ellipsis overflow-hidden line-clamp-2 w-[300px]">
-                      {/* Giới hạn số dòng cho tên sản phẩm */}
-                      <h2 className="font-semibold text-[18px] whitespace-nowrap overflow-hidden overflow-ellipsis">
-                        {product.productName}
-                      </h2>
+                  <Link
+                    to={`/products/${product.productId}`}
+                    className="flex items-center justify-start w-full transition-transform transform hover:scale-105"
+                  >
+                    <div className="flex-shrink-0 w-[150px]">
+                      <img
+                        src={product.images[0]?.path || '/default-image.png'}
+                        alt={product.productName}
+                        className="w-full h-[150px] object-cover"
+                        onError={(e) => { e.target.src = '/default-image.png'; }}
+                      />
                     </div>
-                    {/* Hiển thị số lượng và giá tiền */}
-                    <div className="flex flex-col items-center mt-4">
-                      <span className="text-gray-500 font-semibold text-left ">
-                        Số lượng: {product.quantity}
-                      </span>
-                      <span className="text-red-500 font-semibold">
-                        <span className="mr-1">đ</span>{formatPrice(product.price)}
-                      </span>
+                    <div className="ml-4 flex-grow w-1/3">
+                      <div className="text-ellipsis overflow-hidden line-clamp-2 w-[300px]">
+                        <h2 className="font-semibold text-[18px] whitespace-nowrap overflow-hidden overflow-ellipsis">
+                          {product.productName}
+                        </h2>
+                      </div>
+                      <div className="flex flex-col items-center mt-4">
+                        <span className="text-gray-500 font-semibold text-left">
+                          Số lượng: {product.quantity}
+                        </span>
+                        <span className="text-red-500 font-semibold">
+                          <span className="mr-1">đ</span>{formatPrice(product.price)}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              
-
-                  {/* Edit/Delete Menu */}
+                  </Link>
                   <div className="absolute right-0 top-0 mt-10 mr-3">
                     <button
                       className="font-semibold focus:outline-none text-[20px]"
@@ -164,8 +160,8 @@ export const PublicProduct = ({ userId, status }) => {
                     {menuOpen === product.productId && (
                       <div className="absolute right-0 bg-white shadow-lg border border-gray-200 rounded-lg mt-1 z-10">
                         <button
-                          onClick={() => {}}
-                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => openModal(product.productId)}
                         >
                           Edit
                         </button>
@@ -173,8 +169,6 @@ export const PublicProduct = ({ userId, status }) => {
                       </div>
                     )}
                   </div>
-
-                  {/* Hide Product Button */}
                   <button
                     onClick={() => handleHideClick(product.productId)}
                     className="block w-full px-4 border py-2 text-sm text-gray-700 hover:bg-gray-100 mt-10"
@@ -191,6 +185,16 @@ export const PublicProduct = ({ userId, status }) => {
           </div>
         )}
       </div>
+
+      {showModal && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-md w-3/5 max-h-[95vh] mt-[42px] mb-4 overflow-y-auto">
+            <button onClick={closeModal} className="absolute top-4 right-4 text-red-500">✕</button>
+            <h2 className="text-lg font-bold mb-4">Chỉnh sửa sản phẩm</h2>
+            <EditProduct productId={selectedProductId} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

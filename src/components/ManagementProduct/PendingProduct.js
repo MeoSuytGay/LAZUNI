@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { ListProductByUserIdServices } from '../../services/ListProductByUserIdServices';
-import { DeleteProduct } from './DeleteProduct';
 
 export const PendingProduct = ({ userId, status }) => {
   const [products, setProducts] = useState([]);
@@ -13,7 +12,6 @@ export const PendingProduct = ({ userId, status }) => {
   const [priceRange, setPriceRange] = useState([0, 10000000]);
   const [maxPrice, setMaxPrice] = useState(10000000);
   const [hiddenProducts, setHiddenProducts] = useState(new Set());
-  const [menuOpen, setMenuOpen] = useState(null); // Track opened menu
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -56,21 +54,6 @@ export const PendingProduct = ({ userId, status }) => {
 
   const handleHideClick = (productId) => {
     setHiddenProducts((prev) => new Set(prev).add(productId));
-  };
-
-  const handleDeleteClick = async (productId) => {
-    // Here, you would call your delete service and then update state
-    try {
-      await axios.delete(`/api/products/${productId}`); // Assuming a DELETE API
-      setProducts((prev) => prev.filter(product => product.productId !== productId));
-      setDisplayedProducts((prev) => prev.filter(product => product.productId !== productId));
-    } catch (error) {
-      console.error('Error deleting product', error);
-    }
-  };
-
-  const toggleMenu = (productId) => {
-    setMenuOpen(menuOpen === productId ? null : productId);
   };
 
   return (
@@ -117,7 +100,7 @@ export const PendingProduct = ({ userId, status }) => {
                     </div>
                     <div className="ml-4 flex-grow">
                       <div className="w-9/12 text-ellipsis overflow-hidden line-clamp-2">
-                        <h2 className="font-semibold">{product.productName}</h2>
+                        <h2 className="font-semibold">{product.quantity} x  {product.productName}</h2>
                         <div className="text-red-500 font-semibold mt-2">
                           <span className="font-[2px] mr-[2px]">đ </span>{formatPrice(product.price)}
                         </div>
@@ -125,28 +108,9 @@ export const PendingProduct = ({ userId, status }) => {
                     </div>
                   </div>
 
-                  <div className="absolute right-0 top-0 mt-10 mr-3">
-                    <button
-                      className="font-semibold focus:outline-none text-[20px]"
-                      onClick={() => toggleMenu(product.productId)}
-                    >
-                      ⋮
-                    </button>
-                    {menuOpen === product.productId && (
-                      <div className="absolute right-0 bg-white shadow-lg border border-gray-200 rounded-lg mt-1 z-10">
-                        <button
-                          onClick={() => {}}
-                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                          Edit
-                        </button>
-                        <DeleteProduct productId={product.productId} onDelete={handleDeleteClick} />
-                      </div>
-                    )}
-                  </div>
-
+                  
                   <div className="block w-2/5 px-4 py-2 text-sm text-gray-700 mt-10 border text-center">
-                    <span className="text-gray-500">{product.status}</span>
+                    <span className="text-gray-500">Chờ duyệt</span>
                   </div>
                 </div>
               ))

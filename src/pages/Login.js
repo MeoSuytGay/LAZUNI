@@ -20,7 +20,13 @@ export const Login = () => {
             if (user.state === "active") {
                 localStorage.setItem('user', JSON.stringify(user));
                 localStorage.setItem('email', user.email);
-                navigate('/');
+            
+                if(user.role==="admin"){
+                    navigate('/adminpage');
+                }else{
+                    navigate('/');
+                }
+              
             } else {
                 setShowPopup(true); // Show popup if user account is not active
             }

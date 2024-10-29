@@ -87,7 +87,7 @@ export const Sider = ({
       </div>
 
       {/* New Section for View Static */}
-      <div 
+      {/* <div 
        className={`hover:bg-primary hover:text-white p-4 font-medium ${activeSection === 'viewStatic' ? 'bg-primary text-white' : ''}`} 
        onClick={onToggleViewStatic}
       >
@@ -95,7 +95,7 @@ export const Sider = ({
           <div className='mr-[10px]'><FaRegFileAlt /></div>
           <h2>View Static Data</h2>
         </a>
-      </div>
+      </div> */}
     </div>
   );
 };

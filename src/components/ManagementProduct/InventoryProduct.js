@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { ListProductByUserIdServices } from '../../services/ListProductByUserIdServices';
 import { UpdateStatusService } from '../../services/UpdateStatusProductServices';
 import { DeleteProduct } from './DeleteProduct';
+import { EditProduct } from './EditProduct';
 
 export const InventoryProduct = ({ userId, status }) => {
   console.log(userId, status);
@@ -15,8 +16,9 @@ export const InventoryProduct = ({ userId, status }) => {
   const [priceRange, setPriceRange] = useState([0, 10000000]); // Price range filter (default to a high max)
   const [maxPrice, setMaxPrice] = useState(10000000); // Maximum price from the products
   const [hiddenProducts, setHiddenProducts] = useState(new Set()); // Hidden products set
+  const [showModal, setShowModal] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState(null);
 
-  // Fetch products from API using userId and status
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -83,7 +85,15 @@ export const InventoryProduct = ({ userId, status }) => {
     setDisplayedProducts((prevProducts) => prevProducts.filter(product => product.productId !== productId)); // Update displayed products
     setProducts((prevProducts) => prevProducts.filter(product => product.productId !== productId)); // Update original products as well
   };
+  const openModal = (productId) => {
+    setSelectedProductId(productId);
+    setShowModal(true);
+  };
 
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedProductId(null);
+  };
   return (
     <div className="mb-4 flex mx-auto w-full">
       <div className="w-full">
@@ -164,7 +174,7 @@ export const InventoryProduct = ({ userId, status }) => {
                     {menuOpen === product.productId && (
                       <div className="absolute right-0 bg-white shadow-lg border border-gray-200 rounded-lg mt-1 z-10">
                         <button
-                          onClick={() => {}}
+                          onClick={() => openModal(product.productId)}
                           className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                         >
                           Edit
@@ -191,6 +201,15 @@ export const InventoryProduct = ({ userId, status }) => {
           </div>
         )}
       </div>
+      {showModal && (
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-md w-3/5 max-h-[95vh] mt-[42px] mb-4 overflow-y-auto">
+            <button onClick={closeModal} className="absolute top-4 right-4 text-red-500">✕</button>
+            <h2 className="text-lg font-bold mb-4">Chỉnh sửa sản phẩm</h2>
+            <EditProduct  productId={selectedProductId} />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

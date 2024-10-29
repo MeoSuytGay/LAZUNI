@@ -46,6 +46,12 @@ export const ManageProducts = () => {
           </div>
         </div>
         
+
+        <div className='my-[50px] p-4 bg-[#FAFAFA]'>
+         <div className='font-[1000px] text-red-500'> Lưu Ý: Chỉ xóa những sản phẩm chưa tiến hành giao dịch, không thể xóa các sản phẩm đã giao dịch!</div>
+        </div>
+
+
         <div className='my-[50px] p-4 bg-[#FAFAFA]'>
           <input
             type="button"

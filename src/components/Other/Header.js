@@ -11,6 +11,9 @@ import { CiMenuBurger, CiWallet } from "react-icons/ci";
 import { Link, useNavigate } from 'react-router-dom';
 import LogoutModal from '../Popup/LogoutModal';
 import DepositMoney from '../Popup/DespositeMoney';
+import { TfiReload } from "react-icons/tfi";
+import { UserServices } from '../../services/UserServices';
+ // Adjust the path as necessary
 
 export const Header = () => {
     const [keyWord, setKeyWord] = useState('');
@@ -19,10 +22,11 @@ export const Header = () => {
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [showDepositModal, setShowDepositModal] = useState(false); // Add state for deposit modal
 
+    const navigate = useNavigate();
+
     const handleDepositClick = () => {
         setShowDepositModal(true); // Show the deposit modal
     };
-    const navigate = useNavigate();
 
     const handleLogout = () => {
         setShowLogoutModal(true);
@@ -44,6 +48,32 @@ export const Header = () => {
         }
     }, []);
 
+    const fetchUserData = async () => {
+
+        try {
+
+             const html=document.getElementById("reload");
+             html.classList.add("animate-spin");
+
+
+
+
+            const user = JSON.parse(localStorage.getItem('user')); 
+            if (user && user.userId) { 
+                const updatedUser = await UserServices(user.userId); 
+                setUser(updatedUser);
+
+                localStorage.setItem('user', JSON.stringify(updatedUser)); 
+                html.classList.remove("animate-spin")
+            } else {
+                console.warn("User not found in local storage");
+            }
+        } catch (error) {
+            console.error("Failed to fetch user data:", error);
+        }
+    };
+    
+
     const handleSearchSubmit = (e) => {
         e.preventDefault();
         if (keyWord) {
@@ -57,6 +87,7 @@ export const Header = () => {
         setShowDropdown(false); // Close dropdown after selecting
         navigate(`/profile?section=${section}`);
     };
+
     return (
         <>
             <header className="pb-6 bg-white lg:pb-0 ">
@@ -102,7 +133,10 @@ export const Header = () => {
                     {/* Profile or Login */}
                     <div className='ml-[15px]'>
                         {user ? (
-                            <div className="relative flex">
+                            <div className="relative flex items-center">
+                                <div className='mr-2 cursor-pointer'id="reload" onClick={fetchUserData}> {/* Fetch user data on click */}
+                                    <TfiReload />
+                                </div>
                                 <div className="flex items-center space-x-2 mr-6 border rounded-lg p-2">
                                     <a className="text-base font-medium" onClick={handleDepositClick}>+ {user.balance}</a>
                                     <CiWallet size={24} className="hover:text-stone-600" />
@@ -115,10 +149,9 @@ export const Header = () => {
                                     />
                                     <span className="text-base font-medium text-black">{user.userName}</span>
                                 </div>
-
                                 {/* Dropdown Menu */}
                                 {showDropdown && (
-                                    <div className="absolute right-0 mt-12 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                                    <div className="absolute right-0     mt-[525px] w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
                                         {/* Profile Information Section */}
                                         <div className="px-4 py-2">
                                             <div className="font-semibold">Profile Information</div>
@@ -167,12 +200,12 @@ export const Header = () => {
                                             >
                                                 View Balance Fluctuation
                                             </button>
-                                            <button
+                                            {/* <button
                                                 onClick={() => handleProfileNavigation('viewStatic')}
                                                 className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                                             >
                                                 View Statistics
-                                            </button>
+                                            </button> */}
                                         </div>
 
                                         {/* Other Section */}
@@ -205,9 +238,10 @@ export const Header = () => {
                 onClose={cancelLogout}
                 onConfirm={confirmLogout}
             />
+
             <DepositMoney
                 isOpen={showDepositModal}
-                onClose={() => setShowDepositModal(false)} // Close the deposit modal
+                onClose={() => setShowDepositModal(false)} // Close deposit modal
             />
         </>
     );
