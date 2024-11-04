@@ -14,7 +14,7 @@ export const ListProductByidUse = ({ userId, status }) => {
     const fetchProducts = async () => {
       try {
         setIsLoading(true); // Set loading true before API call
-        const data = await ListProductByUserIdServices(userId, status)
+        const data = await ListProductByUserIdServices(userId, status);
         console.log(data);
         setProducts(data); // Set the fetched products
         setDisplayedProducts(data); // Initially show all products
@@ -28,20 +28,26 @@ export const ListProductByidUse = ({ userId, status }) => {
     fetchProducts();
   }, [userId, status]); // Only re-fetch when `userId` or `status` changes
 
-  // Sort products based on selected sort type
+  // Filter and sort products based on searchTerm and sortType
   useEffect(() => {
-    if (!sortType) {
-      setDisplayedProducts(products); // If no sort type, show original products
-    } else {
-      let sortedProducts = [...products];
-      if (sortType === 'asc') {
-        sortedProducts.sort((a, b) => a.price - b.price);
-      } else if (sortType === 'desc') {
-        sortedProducts.sort((a, b) => b.price - a.price);
-      }
-      setDisplayedProducts(sortedProducts); // Update the displayed products with sorted ones
+    let filteredProducts = products;
+
+    // Apply search term filter
+    if (searchTerm) {
+      filteredProducts = products.filter(product =>
+        product.productName.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     }
-  }, [sortType, products]); // Depend on `sortType` and `products` only, not `userId` or `status`
+
+    // Apply sorting
+    if (sortType === 'asc') {
+      filteredProducts.sort((a, b) => a.price - b.price);
+    } else if (sortType === 'desc') {
+      filteredProducts.sort((a, b) => b.price - a.price);
+    }
+
+    setDisplayedProducts(filteredProducts); // Update displayed products after filtering and sorting
+  }, [searchTerm, sortType, products]); // Depend on `searchTerm`, `sortType`, and `products`
 
   // Format price for VND
   const formatPrice = (price) => {
@@ -106,7 +112,6 @@ export const ListProductByidUse = ({ userId, status }) => {
                       <div className="w-9/12 text-ellipsis overflow-hidden line-clamp-2">
                         {product.productName}
                       </div>
-                    
                     </div>
                     <div className="text-red-500 font-semibold w-full text-left flex ml-[20px]">
                       <span className="font-[2px] mr-[2px]">đ </span>{formatPrice(product.price)}

@@ -3,6 +3,8 @@
     import { InputField } from "../Authenfication/InputField";
     import { UploadProductServices } from "../../services/UploadProductServices";
     import { CategoriesServices } from "../../services/CategoriesServices"; // Import the Categories service
+import NotificationModal from "../Popup/Notice";
+import { createNotification } from "../../services/NoficationServices";
 
     export const UploadProduct = () => {
         const [quantity, setQuantity] = useState(1);
@@ -16,7 +18,8 @@
         const [images, setImages] = useState([]);
         const [previewUrls, setPreviewUrls] = useState([]);
         const [error, setError] = useState('');
-
+        const user = JSON.parse(localStorage.getItem("user")); 
+        const [notification, setNotification] = useState({ show: false, message: '', success: false });
         // Fetch categories when component mounts
         useEffect(() => {
             const fetchCategories = async () => {
@@ -78,12 +81,29 @@
 
             try {
                 const response = await UploadProductServices(formData);
-                console.log("Product uploaded successfully:", response);
+               if(response.data==="Tạo sản phẩm thành công"){
+                setNotification({ show: true, message: "Bạn đã tạo sản phẩm thành công", success: true });
+                await createNotification(
+                    user.userId, // senderId
+                    user.userId, // recievedId
+                    user.userName, // senderName
+                    
+                    `Sản phẩm ${productName} đang được admin kiểm duyêt vui lòng đợi !`, 
+                    "Tạo sản phẩm", // title
+                   
+                    false // isRead
+                );
+
+               }else  {
+                setNotification({ show: true, message: "Bạn không thể tạo thêm sản phẩm vui lòng nâng cấp gói!", success: false });
+               }
             } catch (error) {
                 console.error("Error uploading product:", error);
             }
         };
-
+        const closeNotification = () => {
+            setNotification({ show: false, message: '', success: false });
+          };
         return (
             <>
                 <div className="mx-auto flex p-4">
@@ -282,6 +302,13 @@
                         </button>
                     </div>
                 </div>
+                    <NotificationModal
+            show={notification.show}
+            message={notification.message}
+            success={notification.success}
+            onClose={closeNotification}
+        />
             </>
+            
         );
     };

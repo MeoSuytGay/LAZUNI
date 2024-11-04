@@ -3,7 +3,7 @@ import axios from "axios";
 export const ProductListingServices = async (page, sortType, category,minPrice,maxPrice, address, productName) => {
   try {
     const queryParams = new URLSearchParams();
-
+ console.log(address)
     if (page) queryParams.append("page", page);
     if (sortType) queryParams.append("sortType", sortType);
     if (category) queryParams.append("category", category);

@@ -13,7 +13,10 @@ import LogoutModal from '../Popup/LogoutModal';
 import DepositMoney from '../Popup/DespositeMoney';
 import { TfiReload } from "react-icons/tfi";
 import { UserServices } from '../../services/UserServices';
- // Adjust the path as necessary
+import { Notification } from '../Nofication';
+import { getNotification } from '../../services/NoficationServices';
+
+
 
 export const Header = () => {
     const [keyWord, setKeyWord] = useState('');
@@ -21,7 +24,8 @@ export const Header = () => {
     const [showDropdown, setShowDropdown] = useState(false);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [showDepositModal, setShowDepositModal] = useState(false); // Add state for deposit modal
-
+    const [showDropNoficationdown, setShowDropNoficationdown] = useState(false);
+    const [notifications, setNotifications] = useState([]);
     const navigate = useNavigate();
 
     const handleDepositClick = () => {
@@ -43,6 +47,9 @@ export const Header = () => {
 
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
+        if (user) {
+            getNotification(user.userId, setNotifications);
+        }
         if (storedUser) {
             setUser(JSON.parse(storedUser));
         }
@@ -52,18 +59,14 @@ export const Header = () => {
 
         try {
 
-             const html=document.getElementById("reload");
-             html.classList.add("animate-spin");
-
-
-
-
-            const user = JSON.parse(localStorage.getItem('user')); 
-            if (user && user.userId) { 
-                const updatedUser = await UserServices(user.userId); 
+            const html = document.getElementById("reload");
+            html.classList.add("animate-spin");
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (user && user.userId) {
+                const updatedUser = await UserServices(user.userId);
                 setUser(updatedUser);
 
-                localStorage.setItem('user', JSON.stringify(updatedUser)); 
+                localStorage.setItem('user', JSON.stringify(updatedUser));
                 html.classList.remove("animate-spin")
             } else {
                 console.warn("User not found in local storage");
@@ -72,7 +75,7 @@ export const Header = () => {
             console.error("Failed to fetch user data:", error);
         }
     };
-    
+
 
     const handleSearchSubmit = (e) => {
         e.preventDefault();
@@ -115,15 +118,26 @@ export const Header = () => {
 
                     {/* Icons */}
                     <div className="flex h-auto items-center space-x-6">
-                        <Link to="#">
-                            <IoChatboxEllipsesOutline size={24} className="hover:text-stone-600" />
-                        </Link>
+                        <IoIosNotificationsOutline
+                            size={24}
+                            onClick={() => setShowDropNoficationdown((prev) => !prev)}
+                            className="hover:text-stone-600 cursor-pointer"
+                        />
+                        {showDropNoficationdown && (
+
+                            <Notification />
+
+                        )}
+
+
                         <Link to="/Cart">
                             <IoCartOutline size={24} className="hover:text-stone-600" />
                         </Link>
                         <Link to="/Offer">
                             <FiShoppingBag size={24} className="hover:text-stone-600" />
                         </Link>
+
+
                         <Link to="/manageproducts" className="flex items-center space-x-2">
                             <RiProductHuntLine size={24} className="hover:text-stone-600" />
                             <a className="text-base font-medium">Manage Products</a>
@@ -134,11 +148,13 @@ export const Header = () => {
                     <div className='ml-[15px]'>
                         {user ? (
                             <div className="relative flex items-center">
-                                <div className='mr-2 cursor-pointer'id="reload" onClick={fetchUserData}> {/* Fetch user data on click */}
+                                <div className='mr-2 cursor-pointer' id="reload" onClick={fetchUserData}> {/* Fetch user data on click */}
                                     <TfiReload />
                                 </div>
                                 <div className="flex items-center space-x-2 mr-6 border rounded-lg p-2">
-                                    <a className="text-base font-medium" onClick={handleDepositClick}>+ {user.balance}</a>
+                                    <a className="text-base font-medium" onClick={handleDepositClick}>
+                                        + {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(user.balance)}
+                                    </a>
                                     <CiWallet size={24} className="hover:text-stone-600" />
                                 </div>
                                 <div className="flex items-center space-x-2 cursor-pointer" onClick={() => setShowDropdown(!showDropdown)}>
@@ -151,7 +167,7 @@ export const Header = () => {
                                 </div>
                                 {/* Dropdown Menu */}
                                 {showDropdown && (
-                                    <div className="absolute right-0     mt-[525px] w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                                    <div className="absolute right-0     mt-[500px] w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
                                         {/* Profile Information Section */}
                                         <div className="px-4 py-2">
                                             <div className="font-semibold">Profile Information</div>
@@ -201,11 +217,11 @@ export const Header = () => {
                                                 View Balance Fluctuation
                                             </button>
                                             {/* <button
-                                                onClick={() => handleProfileNavigation('viewStatic')}
-                                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                                            >
-                                                View Statistics
-                                            </button> */}
+                                                    onClick={() => handleProfileNavigation('viewStatic')}
+                                                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                                                >
+                                                    View Statistics
+                                                </button> */}
                                         </div>
 
                                         {/* Other Section */}

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { InputField } from '../Authenfication/InputField'; // Adjust the import based on your file structure
 import { ChangePasswordServices } from '../../services/ChangePasswordServices'; // Ensure this is the correct import
+import { createNotification } from '../../services/NoficationServices';
+
 
 export const ChangePassword = () => {
   const [currentPassword, setCurrentPassword] = useState('');
@@ -8,6 +10,7 @@ export const ChangePassword = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const user = JSON.parse(localStorage.getItem("user"));  // Assuming you store user data in localStorage
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
@@ -17,19 +20,34 @@ export const ChangePassword = () => {
       setError("New passwords do not match.");
       return;
     }
+    
 
     try {
       // Call the ChangePasswordServices with currentPassword and newPassword
       const response = await ChangePasswordServices(currentPassword, newPassword);
-
-      // Assuming response contains a success message or status
-      setSuccess(response);
+    console.log("abc"+response)
+        
+     
       setError('');
-
-      // Reset fields
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
+      if(response==="Wrong old password"){
+        setError("Wrong old passwor")
+      }
+if(response==="Change password successful"){
+  setSuccess(response)
+  await createNotification(
+    user.userId, // senderId
+    user.userId, // recievedId
+    user.userName, // senderName
+    "Bạn đã thay đổi mật khẩu", 
+    "thay đổi mật khẩu", // title
+   
+    false // isRead
+);
+}
+     
     } catch (error) {
       setError("Failed to change password. Please try again.");
       console.error(error); // Log the error for debugging

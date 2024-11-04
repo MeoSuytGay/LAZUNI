@@ -3,6 +3,8 @@ import { AddressCheckOut } from "./AddressCheckOut";
 import { TiTick } from "react-icons/ti";
 import { useLocation } from "react-router-dom";
 import { BuyProductServices } from "../../services/PaymentByServices";
+import NotificationModal from "../Popup/Notice";
+import { createNotification } from "../../services/NoficationServices";
 
 export const CheckOut = () => {
   const [walletBalance, setWalletBalance] = useState(0); // Renamed from shippingFee to walletBalance
@@ -12,6 +14,7 @@ export const CheckOut = () => {
   const [products, setProducts] = useState([]);
   const [balanceError, setBalanceError] = useState(false); // State to track if balance is insufficient
   const user = JSON.parse(localStorage.getItem('user'))
+  const [notification, setNotification] = useState({ show: false, message: '', success: false });
   useEffect(() => {
     if (location.state && location.state.products) {
       setProducts(location.state.products); // Set products from location state
@@ -88,19 +91,47 @@ export const CheckOut = () => {
   
       // Call the BuyProductServices function to place the orders
       const result = await BuyProductServices(orders); // Ensure we await the result
-  
-      // Handle the result
-      if (result.error) {
-        console.error("Order submission failed:", result.error);
-      } else {
-        console.log("Order submitted successfully:", result);
-      }
+
+        if(result==="Order has been created"){
+
+          setNotification({ show: true, message: "Bạn đã mua phẩm thành công", success: true });
+
+         console.log( location.state.products.sellID+" "+user.userId+" "+user.userName+" "+location.state.products.title+" "+location.state.products.subtotal)
+         for (const product of products) {
+          await createNotification(
+            product.sellID,             // sellerId (senderId in notification)
+            user.userId,                // buyerId (recipientId in notification)
+            user.userName,              // senderName
+            `Bạn đã mua sản phẩm ${product.title} với giá ${product.subtotal} vui lòng đợi người bán phản hồi!`, 
+            "Giao dịch sản phẩm",       // title
+            false                       // isRead
+          );
+          await createNotification(
+            user.userId,              // sellerId (senderId in notification)
+            product.sellID,               // buyerId (recipientId in notification)
+            user.userName,              // senderName
+            `Bạn có yêu cầu mua Sản phẩm ${product.title} với giá ${product.subtotal} từ ${user.userName} !`, 
+            "Giao dịch sản phẩm",       // title
+            false                       // isRead
+          );
+        }
+        }
+        else{
+          
+setNotification({ show: true, message: "Bạn không thể mua sản phẩm!", success: false });
+
+        }
+
+    
     } catch (error) {
       // Handle any errors that occur during order submission
       console.error("An error occurred while submitting the order:", error.message);
     }
   };
-  
+  const closeNotification = () => {
+    setNotification({ show: false, message: '', success: false });
+  };
+
   
   
 
@@ -239,6 +270,12 @@ export const CheckOut = () => {
           </div>
         </div>
       </div>
+      <NotificationModal
+        show={notification.show}
+        message={notification.message}
+        success={notification.success}
+        onClose={closeNotification}
+      />
     </>
   );
 };

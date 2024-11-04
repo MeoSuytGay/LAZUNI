@@ -1,19 +1,20 @@
 import axios from "axios";
 
-export const UpgradeServices = async () => {
+export const UpgradeServices = async (packageId) => {
   const user = JSON.parse(localStorage.getItem('user'));
-
+  
   const data = {
-    userId: user.userId,
-    packageId:2,
+    userId: user?.userId,
+    packageId,
   };
-console.log(data)
+  
+ console.log(data);
   try {
     const response = await axios.put('http://localhost:8080/upgrade', data);
-    localStorage.setItem("user", JSON.stringify(response.data)); // Stringify response data
-    return response.data; 
+
+    return response.data;
   } catch (error) {
-    console.error("Error upgrading account:", error);
+    console.error("Error upgrading account:", error.message || error);
     throw error;
   }
 };

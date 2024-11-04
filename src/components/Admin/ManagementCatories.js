@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { CategoriesServices } from "../../services/CategoriesServices";
-import { AddCategoryServices, DeleteCategoryServices, UpdateCategoryServices } from "../../services/AdminCategoryServices";
+import { AddCategoryServices, DeleteCategoryServices, UpdateCategoryServices } from "../../services/Admin/AdminCategoryServices";
 
 export const ManagementCategories = () => {
     const [categories, setCategories] = useState([]);

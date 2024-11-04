@@ -1,17 +1,42 @@
 import { GoDotFill } from "react-icons/go";
 import { OfferUpdateServices } from "../../services/OfferUpdateServices"; // Import the service for updating offer
+import { useState } from "react";
+import NotificationModal from "../Popup/Notice";
 
 export const ProductDeliveryByMadeTrade = (data) => {
-  
+  const [notification, setNotification] = useState({ show: false, message: '', success: false });
+
   const handleConfirm = async (orderId) => {
     try {
       // Update the offer status to 'done'
-      await OfferUpdateServices(orderId, "done");
-      console.log(`Order ${orderId} status updated to done`);
-      // You can add further actions here, such as showing a success message or redirecting
+      const response = await OfferUpdateServices(orderId, "done");
+
+      if (response === "Order has been successful") {
+        setNotification({ show: true, message: "Nhận hàng thành công", success: true });
+
+
+        // await createNotification(
+        //   offer.seller.userId,
+        //   offer.buyer.userId,
+        //   offer.buyer.userName,
+        //   `Yêu cầu giao dịch sản phẩm ${offer.orderDetails.product.productName} của bạn đã được duyệt!`,
+        //   "Giao dịch sản phẩm",
+        //   false
+        // ).catch((error) => {
+        //   console.error("Error creating notification:", error);
+        // });
+
+
+      } else {
+        setNotification({ show: true, message: "Lỗi", success: false });
+      }
+
     } catch (error) {
       console.error("Failed to update order status:", error);
     }
+  };
+  const closeNotification = () => {
+    setNotification({ show: false, message: '', success: false });
   };
 
   return (
@@ -31,7 +56,7 @@ export const ProductDeliveryByMadeTrade = (data) => {
                 Tên người nhận: <strong>{data.data.seller.userName}</strong>
               </li>
               <li className="font-[400]">
-                Số điện thoại người nhận: <strong>{data.data.seller.phoneNumber}</strong>
+                Số điện thoại người nhận: <strong>{data.data.seller.phoneNum}</strong>
               </li>
             </ul>
           </div>
@@ -51,7 +76,9 @@ export const ProductDeliveryByMadeTrade = (data) => {
               <div className="mx-2">{data.data.orderDetails[0].quantity} x</div>
               <div>{data.data.orderDetails[0].productTrade.productName}</div>
             </div>
-            <div className="font-bold">Tổng giá : {data.data.total}</div>
+            {data.data.total !== "0" && (
+              <div className="font-bold">Tổng giá : {data.data.total}</div>
+            )}
           </div>
 
           <div className="flex my-[20px] justify-between mt-[10px] text-center">
@@ -67,6 +94,12 @@ export const ProductDeliveryByMadeTrade = (data) => {
           </div>
         </div>
       </div>
+      <NotificationModal
+        show={notification.show}
+        message={notification.message}
+        success={notification.success}
+        onClose={closeNotification}
+      />
     </>
   );
 };

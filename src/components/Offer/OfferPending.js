@@ -4,13 +4,19 @@ import { OfferPendingMadeServices } from "../../services/OfferYouMadeServices";
 import { useNavigate } from 'react-router-dom';  // Import useNavigate for navigation
 import { OfferPendingRecievedServices } from "../../services/OfferYouRecievedServices";
 import { OfferUpdateServices } from "../../services/OfferUpdateServices";
+import NotificationModal from "../Popup/Notice";
+import { createNotification } from "../../services/NoficationServices";
+
 
 export const OfferPending = ({ status }) => {
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();  // Initialize the navigate function
+  const [notification, setNotification] = useState({ show: false, message: '', success: false });
+
   const state = "pending";
+  // const user = JSON.parse(localStorage.getItem("user")); 
 
   useEffect(() => {
     const fetchOffers = async () => {
@@ -34,23 +40,71 @@ export const OfferPending = ({ status }) => {
     fetchOffers();
   }, [status]);
 
-  const handleReject = async (orderId) => {
+  const handleReject = async (offer) => {
     try {
-      await OfferUpdateServices(orderId, "failed");
-      setOffers((prevOffers) => prevOffers.filter((offer) => offer.orderId !== orderId));
+      const response = await OfferUpdateServices(offer.orderId, "failed");
+      setOffers((prevOffers) => prevOffers.filter((offers) => offers.orderId !== offer.orderId));
+      if (response === "Order has been successful") {
+        setNotification({ show: true, message: "Từ chối đơn hàng thành công", success: true });
+
+
+        await createNotification(
+          offer.seller.userId,
+          offer.buyer.userId,
+          offer.buyer.userName,
+          `Yêu cầu giao dịch sản phẩm ${offer.orderDetails.product.productName} của bạn đã được duyệt!`,
+          "Giao dịch sản phẩm",
+          false
+        ).catch((error) => {
+          console.error("Error creating notification:", error);
+        });
+
+
+      } else {
+        setNotification({ show: true, message: "Bạn không thể từ chối đơn hàng", success: false });
+      }
     } catch (error) {
       console.error("Failed to reject offer:", error);
     }
   };
 
-  const handleAccept = async (orderId) => {
+  const handleAccept = async (offer) => {
     try {
-      await OfferUpdateServices(orderId, "shiping");
-      setOffers((prevOffers) => prevOffers.filter((offer) => offer.orderId !== orderId));
+      const response = await OfferUpdateServices(offer.orderId, "shiping");
+      setOffers((prevOffers) => prevOffers.filter((offer) => offer.orderId !== offer.orderId));
+      console.log(response)
+      console.log(offer)
+      console.log(offer.seller.userId + " " + offer.buyer.userId + " " + offer.buyer.userName + " " + offer.orderDetails.product.productName)
+      if (response === "Order has been successful") {
+        setNotification({ show: true, message: "Xác nhận đơn hàng thành công", success: true });
+
+
+        await createNotification(
+          offer.seller.userId,
+          offer.buyer.userId,
+          offer.buyer.userName,
+          `Yêu cầu giao dịch sản phẩm ${offer.orderDetails.product.productName} của bạn đã được duyệt!`,
+          "Giao dịch sản phẩm",
+          false
+        ).catch((error) => {
+          console.error("Error creating notification:", error);
+        });
+
+
+      } else {
+        setNotification({ show: true, message: "Bạn không thể xác nhận đơn hàng", success: false });
+      }
     } catch (error) {
       console.error("Failed to accept offer:", error);
     }
+
+
+
   };
+  const closeNotification = () => {
+    setNotification({ show: false, message: '', success: false });
+  };
+
 
   const handleContact = (sellerId) => {
     // Navigate to the chat page using the sellerId
@@ -72,9 +126,9 @@ export const OfferPending = ({ status }) => {
         offers.map((offer) => (
           <div key={offer.orderId} className="w-full rounded-xl border-2 py-6 px-2 border-primary mb-4 flex my-[40px]">
             <div className="w-2/5 justify-center flex items-center">
-              <img 
-                src={offer.orderDetails[0].product.images[0].path} 
-                alt="Product" 
+              <img
+                src={offer.orderDetails[0].product.images[0].path}
+                alt="Product"
                 className="w-3/5 h-48 object-cover rounded-lg"
               />
             </div>
@@ -89,11 +143,17 @@ export const OfferPending = ({ status }) => {
                 Trạng thái giao dịch: {offer.type === "exchange" ? "Trao đổi" : "Mua"}
               </div>
               <div className="my-[20px] font-semibold flex">
-                Tổng giá tiền :<div className="ml-2 text-red-600">{offer.total} đ</div>
+                {offer.type !== "exchange" && (
+                  <>
+                    Tổng giá tiền:
+                    <div className="ml-2 text-red-600">{offer.total} đ</div>
+                  </>
+                )}
               </div>
 
+
               {offer.type === "exchange" && (
-                <div className="flex items-center">
+                <div className="flex items-center"> 1x
                   <img
                     src={offer.orderDetails[0].productTrade.images[0].path}
                     alt="Trade Product"
@@ -118,23 +178,30 @@ export const OfferPending = ({ status }) => {
                 <>
                   <button
                     className="border p-3 bg-primary rounded-lg text-white my-[20px]"
-                    onClick={() => handleAccept(offer.orderId)} // Trigger accept function
+                    onClick={() => handleAccept(offer)} // Trigger accept function
                   >
                     Chấp nhận
                   </button>
-                 
+
                 </>
               )}
-               <button
-                    className="border p-3 bg-primary rounded-lg text-white"
-                    onClick={() => handleReject(offer.orderId)} // Trigger reject function
-                  >
-                    Từ chối
-                  </button>
+              <button
+                className="border p-3 bg-primary rounded-lg text-white"
+                onClick={() => handleReject(offer)} // Trigger reject function
+              >
+                Từ chối
+              </button>
             </div>
           </div>
         ))
       )}
+      <NotificationModal
+        show={notification.show}
+        message={notification.message}
+        success={notification.success}
+        onClose={closeNotification}
+      />
     </div>
+
   );
 };

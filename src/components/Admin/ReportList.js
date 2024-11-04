@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaReply } from 'react-icons/fa'; 
-import { AdminReportServices, AdminResponseServices } from '../../services/AdminReportServices'; // Import your service
+import { AdminReportServices, AdminResponseServices } from '../../services/Admin/AdminReportServices'; // Import your service
 
 export const ReportList = () => {
   const [reports, setReports] = useState([]);

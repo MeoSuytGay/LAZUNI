@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaTimes, FaCheck } from 'react-icons/fa'; // Import the close and check icons
-import { fetchPendingProducts, updateProductStatus } from '../../services/SensorProductServices'; // Import services
+import { fetchPendingProducts, updateProductStatus } from '../../services/Admin/SensorProductServices'; // Import services
 import ConfirmationModal from '../../components/Popup/ConfirmationModal'; // Import ConfirmationModal component
 
 export const SensorProduct = () => {

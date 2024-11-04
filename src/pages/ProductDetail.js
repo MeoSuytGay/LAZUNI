@@ -18,6 +18,8 @@ import ConfirmPurchasePopup from '../components/Popup/Confirm';
 import ReportPopup from "../components/Popup/ReportProduct";
 import { ListProductByUserIdServices } from "../services/ListProductByUserIdServices";
 import { BuyProductServices } from "../services/PaymentByServices";
+import NotificationModal from "../components/Popup/Notice";
+import { createNotification } from "../services/NoficationServices";
 export const ProductDetail = () => {
     const { productId } = useParams();
     const [productDetail, setProductDetail] = useState(null);
@@ -31,7 +33,7 @@ export const ProductDetail = () => {
     const [exchangeProducts, setExchangeProducts] = useState([]);
     const user = JSON.parse(localStorage.getItem("user"));
     const navigate = useNavigate();
-
+    const [notification, setNotification] = useState({ show: false, message: '', success: false });
     useEffect(() => {
         const fetchProductDetails = async () => {
             try {
@@ -39,6 +41,7 @@ export const ProductDetail = () => {
                 setProductDetail(data);
                 const userProducts = await ListProductByUserIdServices(user.userId, "public"); 
                 setExchangeProducts(userProducts);
+                console.log(productDetail)
             } catch (error) {
                 setError("Failed to load product details.");
                 console.error(error);
@@ -49,6 +52,10 @@ export const ProductDetail = () => {
 
         fetchProductDetails();
     }, [productId]);
+
+    const closeNotification = () => {
+        setNotification({ show: false, message: '', success: false });
+      };
 
     const increaseQuantity = () => {
         if (quantity < productDetail.quantity) {
@@ -108,12 +115,44 @@ export const ProductDetail = () => {
                         quantity: 1,
                         productTradeId: product.productId, // Add trade ID if applicable
                     }
-                ]
+                ],
+                total:0
             }));
     
             // Call the BuyProductServices function to place the orders
             const result = await BuyProductServices(orders); // Ensure we await the result
-    
+           
+            if(result==="Order has been created"){
+
+                setNotification({ show: true, message: "Bạn đã trao đổi sản phẩm thành công", success: true });
+      
+        
+             
+                await createNotification(
+                    productDetail.user.userId,             // sellerId (senderId in notification)
+                  user.userId,                // buyerId (recipientId in notification)
+                  user.userName,              // senderName
+                  `Bạn đã yêu cầu trao đổi sản phẩm ${productDetail.productName}  vui lòng đợi người bán phản hồi!`, 
+                  "Giao dịch sản phẩm",       // title
+                  false                       // isRead
+                );
+                await createNotification(
+                  user.userId,              // sellerId (senderId in notification)
+                  productDetail.user.userId,               // buyerId (recipientId in notification)
+                  user.userName,              // senderName
+                  `Bạn có yêu cầu trao đổi sản phẩm  ${productDetail.productName} từ ${user.userName} !`, 
+                  "Giao dịch sản phẩm",       // title
+                  false                       // isRead
+                );
+              
+              }
+              else{
+                
+      setNotification({ show: true, message: "Bạn không thể trao đổi sản phẩm!", success: false });
+      
+              }
+
+
             // Handle the result
             if (result.error) {
                 console.error("Order submission failed:", result.error);
@@ -337,7 +376,7 @@ export const ProductDetail = () => {
                                         </button>
                                         <button className="flex items-center border p-2">
                                             <CiShop className="mr-1" />
-                                            <div className="text-[12px]">Xem shop</div>
+                                            <div className="text-[12px]">Xem shopg</div>
                                         </button>
                                     </div>
                                 </div>
@@ -350,6 +389,12 @@ export const ProductDetail = () => {
                 <div>Product not found</div>
             )}
             <ReportPopup isOpen={isReportPopupOpen} onClose={closeReportPopup} />
+            <NotificationModal
+        show={notification.show}
+        message={notification.message}
+        success={notification.success}
+        onClose={closeNotification}
+      />
         </>
     );
 

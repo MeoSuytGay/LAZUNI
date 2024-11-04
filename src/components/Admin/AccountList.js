@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { FaToggleOn, FaToggleOff } from 'react-icons/fa';
-import { AdminAccountServices } from '../../services/AdminAccountServices';
-import { AdminUpdateAccountServices } from '../../services/AdminUpdateAccountServices';
+
+
+import { AdminAccountServices } from '../../services/Admin/AdminAccountServices';
+import { AdminUpdateAccountServices } from '../../services/Admin/AdminUpdateAccountServices';
 
 export const AccountList = () => {
   const [accounts, setAccounts] = useState([]);

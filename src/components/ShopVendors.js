@@ -54,10 +54,10 @@ export const ShopVendors = () => {
                                     <CiChat1 className="mr-1" />
                                     <div className="text-[12px]">Chat ngay</div>
                                 </button>
-                                <button className="flex items-center border p-2">
+                                {/* <button className="flex items-center border p-2">
                                     <FaPlus className="mr-1 text-[10px]" />
                                     <div className="text-[12px]">Follow shop</div>
-                                </button>
+                                </button> */}
                             </div>
                         </div>
                     </a>
