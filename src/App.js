@@ -16,12 +16,12 @@ import { LayoutDefault } from './components/layouts/LayoutDefault';
 import { UploadProduct } from './components/ManagementProduct/UploadProduct';
 import { ManageProducts } from './pages/ManageProducts';
 import { AdminPage } from './pages/AdminPage';
-import { DepositSuccessful } from './components/DepositeSuccessfull';
+// import { DepositSuccessful } from './components/DepositSuccessful';
 import { OfferPage } from './pages/OfferPage';
 import { CheckOut } from './components/CheckOut/CheckOut';
 import { EditProduct } from './components/ManagementProduct/EditProduct';
 import ProtectedRoute from './components/ProtectedRoute';
-
+import { Statistics } from './components/Admin/Statistics';
 
 function App() {
     const user = JSON.parse(localStorage.getItem('user')); // Get user info from localStorage
@@ -50,19 +50,20 @@ function App() {
                     <Route path="manageproducts" element={<ManageProducts />} />
                     <Route path="offer" element={<OfferPage />} />
                     <Route path="checkout" element={<CheckOut />} />
+                    <Route path="abc123" element={<Statistics />} />
+
                     {/* Use ProtectedRoute for admin page */}
-                  
                 </Route>
                 <Route path="login" element={<Login />} />
                 <Route path="signUp" element={<Signup />} />
                 <Route path="enterOtp" element={<EnterOtp />} />
                 <Route path="forgetPassword" element={<ForgetPassword />} />
-                <Route path="despositesucess" element={<DepositSuccessful />} />
-                <Route path="UploadProduct" element={<UploadProduct />} />
+                {/* <Route path="depositSuccessful" element={<DepositSuccessful />} /> */}
+                <Route path="uploadProduct" element={<UploadProduct />} />
                 <Route 
-                        path="adminpage" 
-                        element={<ProtectedRoute element={<AdminPage />} userRole={userRole} requiredRole="admin" />} 
-                    />
+                    path="adminpage" 
+                    element={<ProtectedRoute element={<AdminPage />} userRole={userRole} requiredRole="admin" />} 
+                />
             </Routes>
         </BrowserRouter>
     );

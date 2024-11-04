@@ -20,7 +20,7 @@ export const HomePage = () => {
             </div>
           
           <Categories />
-          <SuggestProduct />
+          {/* <SuggestProduct /> */}
         </div>
       </div>
     </>

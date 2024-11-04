@@ -7,6 +7,8 @@ import { FaList, FaChartBar, FaProductHunt } from "react-icons/fa";
 import { GrUserAdmin } from "react-icons/gr";
 import LogoutModal from "../components/Popup/LogoutModal";
 import { Navigate } from "react-router-dom";
+import { Statistics } from "../components/Admin/Statistics";
+
 
 export const AdminPage = () => {
   const [activeComponent, setActiveComponent] = useState("accountList");
@@ -18,8 +20,10 @@ export const AdminPage = () => {
     managementCategories: ManagementCategories,
     reportList: ReportList,
     sensorProduct: SensorProduct,
+    statistics: Statistics,
   };
 
+ 
   const RenderedComponent = components[activeComponent] || AccountList;
 
   const handleLogout = () => {
@@ -68,6 +72,12 @@ export const AdminPage = () => {
             onClick={() => setActiveComponent("sensorProduct")}
           >
             <FaProductHunt className="inline-block mr-2" /> Sensor Product
+          </li>
+          <li
+             className={`p-4 cursor-pointer ${activeComponent === "statistics" ? "bg-gray-700" : ""}`}
+              onClick={() => setActiveComponent("statistics")}
+          >
+            <FaChartBar className="inline-block mr-2" /> Statistics
           </li>
         </ul>
 
