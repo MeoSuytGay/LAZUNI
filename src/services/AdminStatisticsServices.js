@@ -1,15 +1,21 @@
-// src/services/AdminStatisticsServices.js
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8080/admin/statistics/monthly';
- 
-
-export const getMonthlyStatistics = async (month, year) => {
+const fetchMonthlyStatistics = async () => {
+  setLoading(true); // Start loading
   try {
-    const response = await axios.post(API_URL, { month, year });
-    return response.data;
+      const data = await getMonthlyStatistics({ month: selectedMonth, year }); // Ensure you're passing both
+      setStatistics(prev => ({ ...prev, monthly: data })); // Update the state properly
   } catch (error) {
-    console.error("Error fetching monthly statistics:", error);
-    throw error;
+      console.error('Error fetching monthly statistics:', error);
+      setError(error.message);
+  } finally {
+      setLoading(false); // End loading
   }
+};
+
+export const getYearlyStatistics = async (year) => {
+    const response = await axios.post('http://localhost:8080/admin/statistics/yearly', {
+        year,
+    });
+    return response.data; // Ensure this returns the structure expected by your component
 };
