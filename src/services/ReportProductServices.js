@@ -3,9 +3,24 @@ import axios from 'axios';
 export const ReportProductServices = async (reportData) => {
   console.log(reportData)
   try {
-    const response = await axios.post('http://localhost:8080/reports', reportData, {
+    const response = await axios.post('http://localhost:8080/reports/products', reportData, {
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error reporting product:", error);
+    throw error;
+  }
+};
+export const ReportOrderServices = async (reportData) => {
+
+  try {
+    const response = await axios.post('http://localhost:8080/reports/orders', reportData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
       },
     });
 
@@ -18,19 +33,19 @@ export const ReportProductServices = async (reportData) => {
 
 export const HistoryReportProduct = async (userId) => {
   try {
-    // Fetch the report history using the userId
-    const response = await axios.get(`http://localhost:8080/reports/history?userId=${userId}`, {
+    const response = await axios.get(`http://localhost:8080/reports/product_history?userId=${userId}`, {
       headers: {
         'Content-Type': 'application/json',
       },
     });
 
-    // Log and return the response data
     console.log("Report history data:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching report history:", error);
-    throw error; // Re-throw the error after logging it
+    // You could return an empty array or show a user-friendly message to the user
+    return []; 
   }
 };
+
 

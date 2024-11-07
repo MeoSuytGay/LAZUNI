@@ -116,7 +116,7 @@ export const ProducDeliveryByMade = (data) => {
                 <ReportOrder
                     isOpen={isReportOpen}
                     onClose={closeReportModal}
-                    productId={data.data.orderId}
+                    orderId={data.data.orderId}
                 />
             )}
         </>
