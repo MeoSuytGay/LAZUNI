@@ -110,7 +110,7 @@ export const ReportList = () => {
       {/* Popup to enter the response */}
       {isPopupOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg p-5 shadow-md">
+          <div className="bg-white rounded-lg p-5 shadow-md w-2/5">
             <h2 className="text-lg font-bold">Phản hồi cho báo cáo</h2>
             <textarea
               value={responseText}

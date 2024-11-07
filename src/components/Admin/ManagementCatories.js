@@ -141,12 +141,12 @@ export const ManagementCategories = () => {
                             >
                                 Edit
                             </button>
-                            <button
+                            {/* <button
                                 onClick={() => handleDeleteCategory(category.categoryId)}
                                 className="bg-red-500 text-white px-4 py-2 text-sm rounded hover:bg-red-600 focus:ring-4 focus:ring-red-300 active:bg-red-700 transition-all"
                             >
                                 Delete
-                            </button>
+                            </button> */}
                         </div>
                     </div>
                 ))}

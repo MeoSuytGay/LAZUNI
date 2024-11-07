@@ -55,19 +55,19 @@ export const ManageProducts = () => {
         <div className='my-[50px] p-4 bg-[#FAFAFA]'>
           <input
             type="button"
-            value="Đã public"
+            value="Public"
             className={`p-3 w-1/6 border-primary border ${selectedArea === 'published' ? 'bg-primary text-white' : 'bg-white text-primary'} rounded`}
             onClick={() => handleAreaClick('published')}
           />
           <input
             type="button"
-            value="Kho"
+            value="Inventory"
             className={`mx-4 p-3 border-primary border w-1/6 ${selectedArea === 'stock' ? 'bg-primary text-white' : 'bg-white text-primary'} rounded`}
             onClick={() => handleAreaClick('stock')}
           />
           <input
             type="button"
-            value="Chờ duyệt"
+            value="Waiting for sensor "
             className={`p-3 w-1/6 border-primary border ${selectedArea === 'underReview' ? 'bg-primary text-white' : 'bg-white text-primary'} rounded`}
             onClick={() => handleAreaClick('underReview')}
           />

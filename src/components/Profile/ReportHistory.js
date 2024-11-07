@@ -1,70 +1,57 @@
-import React, { useEffect, useState } from 'react';
-import { HistoryReportProduct } from '../../services/ReportProductServices';
+import React, { useState } from 'react';
+import { ReportOrder } from '../Popup/ReportOrder';
+import { ReportProduct } from './Report/ReportProduct';
+import { FaBoxOpen } from 'react-icons/fa';
+import { IoLogoDropbox } from 'react-icons/io5';
 
 export const ReportHistory = () => {
-  const [reports, setReports] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const user = JSON.parse(localStorage.getItem('user'));
-   
-  useEffect(() => {
-    const fetchReports = async () => {
-      try {
-        const data = await HistoryReportProduct(user.userId);
-        setReports(data);
-        setLoading(false);
-      } catch (error) {
-        setError('Not Found');
-        setLoading(false);
-      }
-    };
+  const [selectedArea, setSelectedArea] = useState("ReportOrder");
 
-    fetchReports();
-  }, []);
-
-  const getStateColor = (state) => {
-    return state === 'Completed' ? 'bg-green-200 text-green-800' : 'bg-yellow-200 text-yellow-800';
+  const handleAreaClick = (area) => {
+    setSelectedArea(area);
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
+  const user = { userId: 1 }; // Example user object for demonstration
 
   return (
-    <div className="mx-auto ml-[50px]">
-      <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-        <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-          <thead className="text-[13px] uppercase text-primary">
-            <tr>
-              <th className="px-6 py-3">Title</th>
-              <th className="px-6 py-3">Description</th>
-              <th className="px-6 py-3">Product Name</th>
-              <th className="px-6 py-3">State</th>
-              <th className="px-6 py-3">Result</th>
-            </tr>
-          </thead>
-          <tbody>
-            {reports.map((report, index) => (
-              <tr key={index} className="border-b border-gray-200">
-                <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                  {report.title}
-                </td>
-                <td className="px-6 py-4">
-                  {report.description}
-                </td>
-                <td className="px-6 py-4">
-                  {report.productName}
-                </td>
-                <td className={`px-6 py-4 ${getStateColor(report.state)}`}>
-                  {report.state}
-                </td>
-                <td className="px-6 py-4">
-                  {report.responseMessage}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <>
+      <div className="container mx-auto ">
+        <h2 className="font-bold text-[30px]">History report</h2>
+
+        <div className="my-[50px] p-4 flex items-center space-x-4">
+          {/* Report Order Tab */}
+          <div
+            className={`p-3 w-1/6 border-b-2 cursor-pointer flex items-center space-x-2 ${
+              selectedArea === "ReportOrder"
+                ? "border-primary text-primary font-bold"
+                : "border-gray-300 text-gray-600"
+            }`}
+            onClick={() => handleAreaClick("ReportOrder")}
+          >
+            <FaBoxOpen className="mr-2" />
+            <div>Report order</div>
+          </div>
+
+          {/* Report Product Tab */}
+          <div
+            className={`p-3 w-1/6 border-b-2 cursor-pointer flex items-center space-x-2 ${
+              selectedArea === "ReportProduct"
+                ? "border-primary text-primary font-bold"
+                : "border-gray-300 text-gray-600"
+            }`}
+            onClick={() => handleAreaClick("ReportProduct")}
+          >
+            <IoLogoDropbox className="mr-2" />
+            <div>Report product</div>
+          </div>
+        </div>
+
+        <div>
+          {/* Conditionally render the selected report */}
+          {selectedArea === "ReportOrder" && user?.userId && <ReportOrder />}
+          {selectedArea === "ReportProduct" && user?.userId && <ReportProduct />}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
