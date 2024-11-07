@@ -7,21 +7,23 @@ import { MdSupportAgent } from 'react-icons/md';
 import { FaChevronRight, FaAngleDoubleDown } from 'react-icons/fa';
 import { RiArrowGoBackLine } from 'react-icons/ri';
 import { ReportOrder } from '../Popup/ReportOrder';
-
+import { Offerconfirm } from '../../services/OfferConfirm';
 
 export const ProductDeliverByRecived = (data) => {
     const [notification, setNotification] = useState({ show: false, message: '', success: false });
     const [showSupport, setShowSupport] = useState(false);
     const [isReportOpen, setIsReportOpen] = useState(false); // State for report modal
-
+    const user = JSON.parse(localStorage.getItem("user"));
     const handleConfirm = async (orderId) => {
+        // Check if the order contains a 'buyId'
+        const response = await Offerconfirm(orderId, user.userId);
+      
+
         try {
-            const response = await OfferUpdateServices(orderId, "done");
+         
             if (response === "Order has been successful") {
                 setNotification({ show: true, message: "Nhận hàng thành công", success: true });
-            } else {
-                setNotification({ show: true, message: "Lỗi", success: false });
-            }
+            } 
         } catch (error) {
             console.error("Failed to update order status:", error);
         }
@@ -126,17 +128,20 @@ export const ProductDeliverByRecived = (data) => {
                     </div>
 
                     {/* Confirmation Section */}
-                    <div className="flex my-[20px] justify-between mt-[10px] text-center">
-                        <div className="font-semibold">
-                            Vui lòng bấm xác nhận hàng khi đã kiểm tra đơn hàng đã <strong> nhận thành công</strong>
-                        </div>
-                        <button
-                            className="p-4 text-white bg-primary rounded-lg"
-                            onClick={() => handleConfirm(data.data.orderId)}
-                        >
-                            Xác nhận
-                        </button>
-                    </div>
+                    {data.data.confirm === null || !data.data.confirm.includes(data.data.buyer.userId) ? (
+    <div className="flex my-[20px] justify-between items-center mt-[10px]">
+        <div className="font-semibold text-center">
+            Vui lòng bấm xác nhận hàng khi đã <strong>giao hàng thành công</strong>
+        </div>
+        <button
+            className="p-4 text-white bg-primary rounded-lg"
+            onClick={() => handleConfirm(data.data.orderId)}
+        >
+            Xác nhận
+        </button>
+    </div>
+) : null}
+
                 </div>
             </div>
             

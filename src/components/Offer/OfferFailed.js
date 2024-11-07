@@ -18,9 +18,9 @@ export const OfferFailed = ({ status }) => {
         setLoading(true);
         let response;
         if (status === "make") {
-          response = await OfferPendingMadeServices("failed");
+          response = await OfferPendingMadeServices("cancle");
         } else if (status === "receive") {
-          response = await OfferPendingRecievedServices("failed");
+          response = await OfferPendingRecievedServices("cancle");
         }
         setOffers(response);
       } catch (err) {

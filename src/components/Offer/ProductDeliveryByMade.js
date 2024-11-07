@@ -5,10 +5,11 @@ import { FaChevronRight, FaAngleDoubleDown } from 'react-icons/fa';
 import { RiArrowGoBackLine } from 'react-icons/ri';
 import { ReportOrder } from '../Popup/ReportOrder';
 import { FaArrowRightArrowLeft } from "react-icons/fa6";
+import { Offerconfirm } from '../../services/OfferConfirm';
 export const ProducDeliveryByMade = (data) => {
     const [isReportOpen, setIsReportOpen] = useState(false); // State for report modal
     const [showSupport, setShowSupport] = useState(false);
-
+    const user = JSON.parse(localStorage.getItem("user"));
     const openReportModal = () => {
         setIsReportOpen(true);
     };
@@ -19,6 +20,10 @@ export const ProducDeliveryByMade = (data) => {
 
     const toggleSupport = () => {
         setShowSupport(!showSupport);
+    };
+
+    const  handleConfirm =  async(orderId) => {
+        const response = await Offerconfirm(orderId, user.userId);
     };
 
     return (
@@ -59,14 +64,11 @@ export const ProducDeliveryByMade = (data) => {
                             {data.data.type === "exchange" && (
                                 <div className=''>
                                     <div className="text-[30px]"><FaArrowRightArrowLeft /></div>
-
                                 </div>
                             )}
 
-
                             {/* Conditional rendering for exchange order */}
                             {data.data.type === "exchange" ? (
-
                                 <div>
                                     <div className="font-semibold text-[16px]">Vật phẩm bạn nhận được :</div>
                                     <div className="justify-between flex my-[20px]">
@@ -86,8 +88,6 @@ export const ProducDeliveryByMade = (data) => {
                                     Tổng giá : {data.data.total}
                                 </div>
                             )}
-
-
                         </div>
                     </div>
 
@@ -109,6 +109,23 @@ export const ProducDeliveryByMade = (data) => {
                             </div>
                         </div>
                     </div>
+
+                    {/* Conditional rendering for confirm button */}
+                    {data.data.confirm === null || !data.data.confirm.includes(data.data.seller.userId) ? (
+    <div className="flex my-[20px] justify-between items-center mt-[10px]">
+        <div className="font-semibold text-center">
+            Vui lòng bấm xác nhận hàng khi đã <strong>giao hàng thành công</strong>
+        </div>
+        <button
+            className="p-4 text-white bg-primary rounded-lg"
+            onClick={() => handleConfirm(data.data.orderId)}
+        >
+            Xác nhận
+        </button>
+    </div>
+) : null}
+
+
                 </div>
             </div>
 
@@ -122,3 +139,4 @@ export const ProducDeliveryByMade = (data) => {
         </>
     );
 };
+

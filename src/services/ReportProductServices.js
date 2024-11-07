@@ -48,4 +48,19 @@ export const HistoryReportProduct = async (userId) => {
   }
 };
 
+export const HistoryReportOrder = async (userId) => {
+  try {
+    const response = await axios.get(`http://localhost:8080/reports/order_history?userId=${userId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
+    console.log("Report history data:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching report history:", error);
+    // You could return an empty array or show a user-friendly message to the user
+    return []; 
+  }
+};

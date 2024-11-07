@@ -42,7 +42,7 @@ export const OfferPending = ({ status }) => {
 
   const handleReject = async (offer) => {
     try {
-      const response = await OfferUpdateServices(offer.orderId, "failed");
+      const response = await OfferUpdateServices(offer.orderId, "cancle");
       setOffers((prevOffers) => prevOffers.filter((offers) => offers.orderId !== offer.orderId));
       if (response === "Order has been successful") {
         setNotification({ show: true, message: "Từ chối đơn hàng thành công", success: true });

@@ -74,7 +74,7 @@ export const CheckOut = () => {
       const orders = Object.keys(groupedProducts).map((sellerId) => {
         const sellerProducts = groupedProducts[sellerId];
         const total = sellerProducts.reduce((acc, product) => acc + product.subtotal, 0); // Calculate total for each seller
-  
+           console.log(paymentMethod)
         return {
           type: "buy",
           sellerId: sellerId,

@@ -2,10 +2,10 @@ import axios from 'axios';
 
 
 
-export const AdminReportServices = async () => {
+export const AdminReportProductServices = async () => {
     try {
       // Fetch the report history using the userId
-      const response = await axios.get(`http://localhost:8080/reports/admin/history`, {
+      const response = await axios.get(`http://localhost:8080/reports/admin/product_history`, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -20,8 +20,27 @@ export const AdminReportServices = async () => {
     }
   };
   
+  
+export const AdminReportOrderServices = async () => {
+  try {
+    // Fetch the report history using the userId
+    const response = await axios.get(`http://localhost:8080/reports/admin/order_history`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    // Log and return the response data
+    console.log("Report history data:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching report history:", error);
+    throw error; // Re-throw the error after logging it
+  }
+};
 
   export const AdminResponseServices = async (reportId, responseMessage) => {
+    console.log(reportId+" "+responseMessage)
     try {
         // Send reportId and responseMessage as query parameters using RequestParam
         const response = await axios.post(

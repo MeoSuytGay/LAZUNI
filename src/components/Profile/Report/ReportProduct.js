@@ -41,7 +41,7 @@ export const ReportProduct=()=>{
               <th className="px-6 py-3">Title</th>
               <th className="px-6 py-3">Description</th>
               <th className="px-6 py-3">Product Name</th>
-              <th className="px-6 py-3">Product Image</th>
+              <th className="px-6 py-3">Report Image</th>
               <th className="px-6 py-3">State</th>
               <th className="px-6 py-3">Result</th>
             </tr>
@@ -58,10 +58,25 @@ export const ReportProduct=()=>{
                 <td className="px-6 py-4">
                   {report.productName}
                 </td>
+                <td className="px-6 py-4 flex ">
+    {report.images && report.images.length > 0 ? (
+        report.images.map((image, index) => (
+            <img
+                key={index} // Ensure to use a unique key for each element in the list
+                src={image.path}
+                className="w-[40px] h-[40px] mr-2" // Add some margin between images if needed
+                alt={`Order Report ${index + 1}`} // Use a dynamic alt text for accessibility
+            />
+        ))
+    ) : (
+        <span>No images available</span> // Handle the case where there are no images
+    )}
+</td>
+
                 <td className={`px-6 py-4 ${getStateColor(report.state)}`}>
                   {report.state}
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-6 py-4 font-bold text-primary">
                   {report.responseMessage}
                 </td>
               </tr>

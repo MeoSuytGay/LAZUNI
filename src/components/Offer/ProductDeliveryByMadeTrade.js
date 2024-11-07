@@ -9,13 +9,14 @@ import { FaChevronRight, FaAngleDoubleDown } from 'react-icons/fa';
 import { RiArrowGoBackLine } from 'react-icons/ri';
 import { ReportOrder } from '../Popup/ReportOrder';
 import { FaArrowRightArrowLeft } from "react-icons/fa6";
+import { Offerconfirm } from "../../services/OfferConfirm";
 export const ProductDeliveryByMadeTrade = (data) => {
   const [notification, setNotification] = useState({
     show: false,
     message: '',
     success: false,
   });
-
+  const user = JSON.parse(localStorage.getItem("user"));
   const [isReportOpen, setIsReportOpen] = useState(false); // State for report modal
   const [showSupport, setShowSupport] = useState(false);
 
@@ -32,7 +33,7 @@ export const ProductDeliveryByMadeTrade = (data) => {
   };
   const handleConfirm = async (orderId) => {
     try {
-      const response = await OfferUpdateServices(orderId, "done");
+      const response = await Offerconfirm(orderId, user.userId);
 
       if (response === "Order has been successful") {
         setNotification({
@@ -52,13 +53,7 @@ export const ProductDeliveryByMadeTrade = (data) => {
         // ).catch((error) => {
         //   console.error("Error creating notification:", error);
         // });
-      } else {
-        setNotification({
-          show: true,
-          message: "Lỗi",
-          success: false,
-        });
-      }
+      } 
     } catch (error) {
       console.error("Failed to update order status:", error);
     }
@@ -171,17 +166,19 @@ export const ProductDeliveryByMadeTrade = (data) => {
                         </div>
                     </div>
 
-          <div className="flex my-[20px] justify-between items-center mt-[10px]">
-            <div className="font-semibold text-center">
-              Vui lòng bấm xác nhận hàng khi đã <strong>trao đổi hàng thành công</strong>
-            </div>
-            <button
-              className="p-4 text-white bg-primary rounded-lg"
-              onClick={() => handleConfirm(data.data.orderId)}
-            >
-              Xác nhận
-            </button>
-          </div>
+                    {data.data.confirm === null || !data.data.confirm.includes(data.data.buyer.userId) ? (
+    <div className="flex my-[20px] justify-between items-center mt-[10px]">
+        <div className="font-semibold text-center">
+            Vui lòng bấm xác nhận hàng khi đã <strong>giao hàng thành công</strong>
+        </div>
+        <button
+            className="p-4 text-white bg-primary rounded-lg"
+            onClick={() => handleConfirm(data.data.orderId)}
+        >
+            Xác nhận
+        </button>
+    </div>
+) : null}
         </div>
       </div>
 

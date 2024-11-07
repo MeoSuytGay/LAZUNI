@@ -13,7 +13,7 @@ export const OfferCompleted = ({ status }) => {
   const [error, setError] = useState(null);
   const [editingReview, setEditingReview] = useState(null);  // State to manage the review editor
   const navigate = useNavigate();  // Initialize the navigate function
-  const state = "done";
+  const state = "successful";
 
   useEffect(() => {
     const fetchOffers = async () => {
@@ -37,23 +37,6 @@ export const OfferCompleted = ({ status }) => {
     fetchOffers();
   }, [status]);
 
-  const handleReject = async (orderId) => {
-    try {
-      await OfferUpdateServices(orderId, "failed");
-      setOffers((prevOffers) => prevOffers.filter((offer) => offer.orderId !== orderId));
-    } catch (error) {
-      console.error("Failed to reject offer:", error);
-    }
-  };
-
-  const handleAccept = async (orderId) => {
-    try {
-      await OfferUpdateServices(orderId, "shiping");
-      setOffers((prevOffers) => prevOffers.filter((offer) => offer.orderId !== orderId));
-    } catch (error) {
-      console.error("Failed to accept offer:", error);
-    }
-  };
 
   const handleContact = (sellerId) => {
     // Navigate to the chat page using the sellerId
